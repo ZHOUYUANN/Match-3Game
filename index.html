@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>方块消除游戏 - 技能系统</title>
+		<link rel="stylesheet" href="./css/style.css" />
+	</head>
+
+	<body>
+		<div class="game">
+			<div class="game-container" id="gameContainer">
+				<div class="game-tip" style="display: none">
+					<div class="tip-title">提示</div>
+					<div class="tip-content">
+						<div>是否激活【北极熊<span>X2</span>】</div>
+						<div class="tip-anmail"></div>
+						<div class="tip-desc"></div>
+						<div class="tip-btns">
+							<div class="btn-cancel btn">取消</div>
+							<div class="tip-confirm btn">确认</div>
+						</div>
+					</div>
+				</div>
+				<div class="game-buffalo" id="gameBuffalo"></div>
+				<div class="game-mask" id="gameMask">请选择场上1种动物激活，目前只有北极熊可以选择</div>
+				<div class="game-content">
+					<div class="game-stage">
+						<div class="game-animals" id="animals"></div>
+						<div class="game-title">
+							<div class="title">动物大迁徙</div>
+							<div class="game-score">
+								<div class="score-text">本局积分</div>
+								<div class="score-num" id="score">0</div>
+							</div>
+						</div>
+						<div class="game-round">
+							<div class="round-title">第<span id="round">1</span>回合</div>
+							<div class="round-section">
+								<div class="round-countdown">
+									<div class="round-countdown-text">野牛将在<span id="buffaloCountdown">1</span></div>
+									<div>回合后来袭</div>
+								</div>
+							</div>
+						</div>
+						<div class="game-skill">
+							<div class="skill-text" id="skillText">技能</div>
+							<div class="progress-wrapper">
+								<div class="progress-bar" id="skillProgressFill"></div>
+								<div class="progress-points" id="skillPoint">
+									<div id="currentPoints">1</div>
+									/
+									<div id="nextThreshold">1</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="game-wrapper" id="gameWrapper"></div>
+				</div>
+			</div>
+		</div>
+		<div class="controls">
+			<button id="restartBtn">重新开始</button>
+			<button id="hintBtn">提示</button>
+		</div>
+		<div class="instructions">
+			<p>
+				游戏规则:
+				拖拽方块左右移动，当一行填满时会消除得分。每次移动后底部会新增一行方块，所有方块上移一层。当方块堆到顶部时游戏结束。
+			</p>
+			<div class="improvement-note">
+				<strong>新增功能:</strong>
+				<ul>
+					<li>野牛标记倒计时显示</li>
+					<li>冻结技能 - 消耗4格方块获得额外移动机会</li>
+					<li>技能点数系统</li>
+				</ul>
+			</div>
+		</div>
+
+		<script src="./js/GameState.js"></script>
+		<script src="./js/GameSound.js"></script>
+		<script src="./js/GameSkill.js"></script>
+		<script src="./js/GameLogic.js"></script>
+		<script src="./js/GameRenderer.js"></script>
+		<script src="./js/GameController.js"></script>
+		<script src="./js/Match3Game.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				const game = new Match3Game({
+					el: document.getElementById('gameWrapper'),
+					boardSize: [9, 11], // 宽高
+					cubicBezier: [0.175, 0.885, 0.32, 1.275], // 全局动画缓动
+					duration: 120, // 120ms
+					gap: 1, // 2px
+					buffaloPattern: [20, 20, 20, 10, 10, 10, 10, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5],
+					buffaloLength: 5
+				})
+				game.start()
+			})
+		</script>
+	</body>
+</html>
