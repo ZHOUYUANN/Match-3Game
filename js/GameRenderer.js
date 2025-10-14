@@ -26,14 +26,6 @@ class GameRenderer {
 		this.renderGrid()
 		this.renderPreview()
 
-		// 画布渲染之后设置 cellSize 大小
-		const cell = document.querySelector('.cell')
-		const rect = cell.getBoundingClientRect()
-		this.state.cellSize = rect.width
-		this.defaultBlockMarker.style.width = `${this.state.cellSize}px`
-		this.defaultBlockMarker.style.height = `${this.state.cellSize}px`
-		this.dragBlockMarker.style.width = `${this.state.cellSize}px`
-
 		// 设置背景音乐
 		// this.soundManager.play('background', {
 		// 	loop: true
@@ -90,6 +82,12 @@ class GameRenderer {
 		this.gameMarker = gameMarker
 		this.defaultBlockMarker = defaultBlockMarker
 		this.dragBlockMarker = dragBlockMarker
+
+		// 画布渲染之后设置 cellSize 大小
+		const cell = document.querySelector('.cell')
+		const rect = cell.getBoundingClientRect()
+
+		this.state.cellSize = rect.width
 	}
 
 	renderPreview() {
