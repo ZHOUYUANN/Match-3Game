@@ -19,7 +19,7 @@ class GameController {
 		this.restartBtn = document.getElementById('restartBtn')
 		this.hintBtn = document.getElementById('hintBtn')
 
-		this.skillPointElement = document.getElementById('skillPoint')
+		this.skillTextElement = document.getElementById('skillText')
 		this.gameMaskElement = document.getElementById('gameMask')
 	}
 
@@ -31,10 +31,10 @@ class GameController {
 		this.hintBtn.addEventListener('click', this.handleHint.bind(this))
 
 		// 添加技能按钮事件
-		this.skillPointElement.addEventListener('click', this.handleSkillPointsClick.bind(this))
+		this.skillTextElement.addEventListener('click', this.handleSkillTextClick.bind(this))
 	}
 
-	handleSkillPointsClick() {
+	handleSkillTextClick() {
 		if (this.state.skill.skillPoint <= 0) {
 			this.renderer.showMessage({ message: '技能点不足！' })
 			return
@@ -121,6 +121,7 @@ class GameController {
 		this.draggingBlock.classList.add('dragging')
 		// 设置默认位置的block位置
 		this.renderer.defaultBlockMarker.style.width = `${width}px`
+		this.renderer.defaultBlockMarker.style.height = `${cellSize}px`
 		this.renderer.defaultBlockMarker.style.transform = `translate(${left}px, ${top}px)`
 		this.renderer.defaultBlockMarker.style.visibility = 'visible'
 
