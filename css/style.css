@@ -755,6 +755,10 @@ h1 {
 	z-index: 399;
 }
 
+.block.eliminating {
+	z-index: 499;
+}
+
 .block-num {
 	position: absolute;
 	top: 50%;
@@ -781,6 +785,16 @@ h1 {
 
 .block-num[data-length='200'] {
 	color: #ff6565;
+}
+
+.block-star {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #4caf50;
+	visibility: hidden;
+	z-index: 599;
 }
 
 .block.dragging {

@@ -235,6 +235,7 @@ class GameRenderer {
 
 				const cellSize = this.state.cellSize
 				const gap = this.state.gap
+				const oldLeft = block.startCol * (cellSize + gap) + (block.limitedDeltaX ? block.limitedDeltaX : 0)
 				const newLeft = block.endCol * (cellSize + gap)
 				const oldTop = block.startRow * (cellSize + gap)
 				const newTop = block.endRow * (cellSize + gap)
@@ -257,7 +258,6 @@ class GameRenderer {
 				}
 				// 移动动画
 				if (type === 'move') {
-					const oldLeft = block.startCol * (cellSize + gap) + block.limitedDeltaX
 					blockDom.dataset.col = block.endCol
 
 					animates.push(
@@ -292,7 +292,7 @@ class GameRenderer {
 					blockDom.dataset.value = block.comboMultiplier
 					blockDom.dataset.length = block.length
 
-					animates.push(this.eliminatingAnimations(blockDom, block))
+					animates.push(this.eliminatingAnimations(blockDom, block, oldLeft, oldTop))
 				}
 			})
 			await Promise.all(animates)
@@ -309,13 +309,22 @@ class GameRenderer {
 		})
 	}
 
-	async eliminatingAnimations(blockDom, block) {
+	async eliminatingAnimations(blockDom, block, oldLeft, oldTop) {
 		const dom = document.createElement('div')
 		dom.classList.add('block-num')
 		dom.dataset.length = block.length
 		dom.innerHTML = block.comboMultiplier
 
+		const star = document.createElement('div')
+		star.classList.add('block-star')
+
+		const x = oldLeft + blockDom.offsetWidth / 2
+		const y = oldTop + blockDom.offsetHeight / 2
+		star.style.transform = `translate(${x}px, ${y}px)`
+
+		blockDom.classList.add('eliminating')
 		blockDom.appendChild(dom)
+		blockDom.parentNode.insertBefore(star, blockDom)
 		// 使用 await 等待每个动画完成，再执行下一个
 		await this.state.animate({
 			begin: 0,
@@ -357,6 +366,23 @@ class GameRenderer {
 			},
 			onEnd: () => {
 				blockDom.remove()
+			}
+		})
+		// 星星飞出动画
+		this.state.animate({
+			begin: y,
+			end: 0,
+			duration: 340,
+			cubicBezier: [0.04, 0.11, 0.6, 0.86],
+			onBefore: () => {
+				star.style.visibility = 'visible'
+				star.style.opacity = 1
+			},
+			onUpdate: (value) => {
+				star.style.transform = `translate(${x * (value / y)}px, ${value}px)`
+			},
+			onEnd: () => {
+				star.remove()
 			}
 		})
 	}
