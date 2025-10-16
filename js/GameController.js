@@ -42,19 +42,10 @@ class GameController {
 		if (this.isSelectingSkillTarget || this.state.isFreezeMode) {
 			return
 		}
-		// 更新阈值和最大值
-		const newThreshold = this.state.skill.maxPoints - this.state.skill.threshold
-		this.state.skill.maxPoints = this.state.skill.maxPoints + this.state.skill.threshold
-		this.state.skill.currentPoints = this.state.skill.currentPoints - this.state.skill.threshold
-		this.state.skill.threshold = newThreshold
-
 		this.soundManager.play('falling')
-
 		// 进入“等待选择技能目标”模式
 		this.isSelectingSkillTarget = true
 		this.gameMaskElement.classList.add('show')
-
-		this.renderer.updateScore()
 	}
 
 	handleMouseDown(e) {
@@ -78,6 +69,12 @@ class GameController {
 			// 找到有效的目标，激活技能
 			this.isSelectingSkillTarget = false
 			this.state.skill.skillPoint--
+
+			// 更新阈值和最大值
+			const newThreshold = this.state.skill.maxPoints - this.state.skill.threshold
+			this.state.skill.maxPoints = this.state.skill.maxPoints + this.state.skill.threshold
+			this.state.skill.currentPoints = this.state.skill.currentPoints - this.state.skill.threshold
+			this.state.skill.threshold = newThreshold
 
 			this.renderer.updateScore()
 			this.skillManager.activateSkill(blockData)
