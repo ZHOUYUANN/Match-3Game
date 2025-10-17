@@ -509,6 +509,54 @@ h1 {
 	z-index: 100;
 }
 
+.game-bear {
+	position: absolute;
+	top: 100%;
+	left: 12px;
+	width: 80px;
+	height: 103px;
+	transition: top 0.3s ease;
+}
+
+.game-bear img {
+	width: 100%;
+	height: auto;
+	object-fit: cover;
+	display: block;
+}
+
+.game-container .game-bubble {
+	position: absolute;
+	top: -18px;
+	left: 76%;
+	background: #fff8e3;
+	color: #776f5a;
+	padding: 6px 11px;
+	border-radius: 10px;
+	max-width: 200px;
+	text-align: center;
+	border-bottom-left-radius: 0;
+	border: 1px solid #836f5e;
+	white-space: nowrap;
+	font-size: 12px;
+	visibility: hidden;
+	transition: visibility 0.3s ease;
+	transition-delay: 0.5s;
+	transform-origin: left bottom;
+}
+
+.game-container.winter .game-bear {
+	top: calc(100% - 120px);
+}
+
+.game-container.winter .game-bubble {
+	visibility: visible;
+}
+
+.game-container .game-bubble span {
+	color: #6e8b70;
+}
+
 .skill-text {
 	width: 21%;
 	height: 0;

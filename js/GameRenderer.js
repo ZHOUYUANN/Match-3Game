@@ -9,6 +9,8 @@ class GameRenderer {
 		this.scoreElement = document.getElementById('score')
 
 		// 新增UI元素
+		this.gameBubbleElement = document.getElementById('gameBubble')
+		this.pointsElement = document.getElementById('points')
 		this.skillTextElement = document.getElementById('skillText')
 		this.skillPointElement = document.getElementById('skillPoint')
 		this.buffaloCountdownElement = document.getElementById('buffaloCountdown')
@@ -190,6 +192,7 @@ class GameRenderer {
 		this.roundElement.textContent = this.state.round
 		this.scoreElement.textContent = this.state.score
 		// 更新技能点显示
+		this.pointsElement.textContent = this.state.freezeMovesLeft
 		this.buffaloCountdownElement.textContent = this.state.nextBuffaloRound - this.state.round
 
 		// 计算进度条比例
@@ -213,6 +216,20 @@ class GameRenderer {
 		if (this.state.skill.skillPoint > 0) {
 			this.skillPointElement.classList.add('active')
 			this.skillTextElement.classList.add('active')
+
+			this.state.animate({
+				keyframes: [
+					{ offset: 0, value: 1 },
+					{ offset: 0.5, value: 0.65 },
+					{ offset: 0.7, value: 1.2 },
+					{ offset: 1, value: 1 }
+				],
+				duration: 300,
+				cubicBezier: [0.84, 0.0, 0.0, 1],
+				onUpdate: (value) => {
+					this.gameBubbleElement.style.transform = `scale(${value})`
+				}
+			})
 		} else {
 			this.skillPointElement.classList.remove('active')
 			this.skillTextElement.classList.remove('active')
