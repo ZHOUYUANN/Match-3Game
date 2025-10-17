@@ -30,6 +30,7 @@ class GameSkill {
 
 	async handleBearSkill(block) {
 		let blocks = []
+		let blocks2 = []
 		// 计算可移动次数（棋盘上北极熊方块的数量）
 		const bearBlocks = document.querySelectorAll('.block[data-animal="bear"]')
 		this.state.freezeMovesLeft = bearBlocks.length
@@ -51,11 +52,13 @@ class GameSkill {
 				const blockData = this.state.board[row][col]
 				if (blockData && blockData.animal === 'buffalo') {
 					this.state.board[row][col] = null
-					if (!blocks.find((b) => b.blockId === blockData.id)) {
-						blocks.push({
+					if (!blocks2.find((b) => b.blockId === blockData.id)) {
+						blocks2.push({
 							blockId: blockData.id,
 							startLength: blockData.length,
 							endLength: 1,
+							startRow: row,
+							startCol: col,
 							animal: blockData.animal
 						})
 						this.state.board[row][col] = {
@@ -64,13 +67,24 @@ class GameSkill {
 						}
 					}
 				}
+				if (blockData && blockData.animal === 'bear') {
+					if (!blocks.find((b) => b.blockId === blockData.id)) {
+						blocks.push({
+							blockId: blockData.id,
+							startRow: row,
+							startCol: col,
+							animal: blockData.animal
+						})
+					}
+				}
 			}
 		}
 
-		// 如果没有野牛方块，直接返回
+		// 如果没有北极熊方块，直接返回
 		if (!blocks.length) return
 
-		await this.renderer.animateBlock(blocks, 'buffalo')
+		await this.renderer.animateBlock(blocks, 'skill')
+		await this.renderer.animateBlock(blocks2, 'buffalo')
 		await this.state.sleep(500)
 		this.logic.processGameEffects()
 	}

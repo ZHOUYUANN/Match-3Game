@@ -93,7 +93,9 @@ class GameRenderer {
 	renderPreview() {
 		this.gameMarker.innerHTML = ''
 		const fragment = document.createDocumentFragment()
+		const fragment2 = document.createDocumentFragment()
 		const row = 0
+		const row2 = this.state.boardSizeH
 		const newRow = this.state.generateNewRow()
 
 		// 特殊行：包含连续的5个方块
@@ -101,29 +103,16 @@ class GameRenderer {
 			const blockData = newRow[col]
 			if (blockData !== null && blockData.startCol === col) {
 				const block = this.createBlockElement(row, col, blockData, `marker`)
+				const block2 = this.createBlockElement(row2, col, blockData, `block ${blockData.animal}`)
 				fragment.appendChild(block)
+				fragment2.appendChild(block2)
 			}
 		}
 
 		this.nextRow = newRow
+
 		this.gameMarker.appendChild(fragment)
-
-		this.renderBlocks(newRow)
-	}
-
-	renderBlocks(newRowData) {
-		const fragment = document.createDocumentFragment()
-		const row = this.state.boardSizeH
-
-		for (let col = 0; col < this.state.boardSizeX; col++) {
-			const blockData = newRowData[col]
-			if (blockData !== null && blockData.startCol === col) {
-				const block = this.createBlockElement(row, col, blockData, `block ${blockData.animal}`)
-				fragment.appendChild(block)
-			}
-		}
-
-		this.gameBoard.appendChild(fragment)
+		this.gameBoard.appendChild(fragment2)
 	}
 
 	async renderAnimals(blocks) {
@@ -175,6 +164,25 @@ class GameRenderer {
 		block.style.transform = `translate(${left}px, ${top}px)`
 
 		return block
+	}
+
+	createStarElement(blockDom, oldLeft, oldTop) {
+		const star = document.createElement('div')
+		star.classList.add('block-star')
+
+		const width = 10
+		const height = 10
+		const x = oldLeft + blockDom.offsetWidth / 2 - width / 2
+		const y = oldTop + blockDom.offsetHeight / 2 - height / 2
+		star.style.width = `${width}px`
+		star.style.height = `${height}px`
+		star.style.transform = `translate(${x}px, ${y}px)`
+
+		return {
+			starDom: star,
+			x,
+			y
+		}
 	}
 
 	updateScore() {
@@ -287,6 +295,30 @@ class GameRenderer {
 						})
 					)
 				}
+				// 使用技能
+				if (type === 'skill') {
+					const { starDom, x, y } = this.createStarElement(blockDom, oldLeft, oldTop)
+					blockDom.parentNode.insertBefore(starDom, blockDom)
+
+					animates.push(
+						this.state.animate({
+							begin: 0,
+							end: y,
+							duration: 300,
+							cubicBezier: [0.84, 0.0, 0.0, 1],
+							onBefore: () => {
+								starDom.style.visibility = 'visible'
+								starDom.style.opacity = 1
+							},
+							onUpdate: (value) => {
+								starDom.style.transform = `translate(${x * (value / y)}px, ${value}px)`
+							},
+							onEnd: () => {
+								starDom.remove()
+							}
+						})
+					)
+				}
 				// 消除动画
 				if (type === 'eliminating') {
 					blockDom.dataset.value = block.comboMultiplier
@@ -310,21 +342,15 @@ class GameRenderer {
 	}
 
 	async eliminatingAnimations(blockDom, block, oldLeft, oldTop) {
-		const dom = document.createElement('div')
-		dom.classList.add('block-num')
-		dom.dataset.length = block.length
-		dom.innerHTML = block.comboMultiplier
+		const { starDom, x, y } = this.createStarElement(blockDom, oldLeft, oldTop)
+		const numDom = document.createElement('div')
+		numDom.classList.add('block-num')
+		numDom.dataset.length = block.length
+		numDom.innerHTML = block.comboMultiplier
 
-		const star = document.createElement('div')
-		star.classList.add('block-star')
-
-		const x = oldLeft + blockDom.offsetWidth / 2
-		const y = oldTop + blockDom.offsetHeight / 2
-		star.style.transform = `translate(${x}px, ${y}px)`
-
+		blockDom.appendChild(numDom)
 		blockDom.classList.add('eliminating')
-		blockDom.appendChild(dom)
-		blockDom.parentNode.insertBefore(star, blockDom)
+		blockDom.parentNode.insertBefore(starDom, blockDom)
 		// 使用 await 等待每个动画完成，再执行下一个
 		await this.state.animate({
 			begin: 0,
@@ -332,13 +358,13 @@ class GameRenderer {
 			duration: 600,
 			cubicBezier: [0.635, 0.005, 0, 0.995],
 			onBefore: () => {
-				dom.style.visibility = 'visible'
+				numDom.style.visibility = 'visible'
 			},
 			onUpdate: (value) => {
-				dom.style.transform = `translate(-50%, calc(-50% - ${value}px))`
+				numDom.style.transform = `translate(-50%, calc(-50% - ${value}px))`
 			},
 			onEnd: () => {
-				dom.style.visibility = 'hidden'
+				numDom.style.visibility = 'hidden'
 			}
 		})
 		await this.state.animate({
@@ -375,14 +401,14 @@ class GameRenderer {
 			duration: 340,
 			cubicBezier: [0.04, 0.11, 0.6, 0.86],
 			onBefore: () => {
-				star.style.visibility = 'visible'
-				star.style.opacity = 1
+				starDom.style.visibility = 'visible'
+				starDom.style.opacity = 1
 			},
 			onUpdate: (value) => {
-				star.style.transform = `translate(${x * (value / y)}px, ${value}px)`
+				starDom.style.transform = `translate(${x * (value / y)}px, ${value}px)`
 			},
 			onEnd: () => {
-				star.remove()
+				starDom.remove()
 			}
 		})
 	}
