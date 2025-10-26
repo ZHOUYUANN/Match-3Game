@@ -44,6 +44,7 @@ class Match3Game {
 				buffalo: 'sounds/buffalo.mp3',
 				falling: 'sounds/falling.mp3',
 				move: 'sounds/move.mp3',
+				eat: 'sounds/eat.mp3',
 				eliminating: 'sounds/eliminating.mp3'
 			})
 
