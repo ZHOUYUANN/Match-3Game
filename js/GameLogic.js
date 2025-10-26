@@ -94,6 +94,58 @@ class GameLogic {
 		})
 	}
 
+	// 检测狮子方块长度，并减少长度
+	checkLionBlock() {
+		return new Promise(async (resolve) => {
+			const blocks = []
+
+			// 检测狮子技能长度
+			for (let row = 0; row < this.state.boardSizeH; row++) {
+				for (let col = 0; col < this.state.boardSizeX; col++) {
+					if (!this.state.board[row][col]) continue
+					const blockData = this.state.board[row][col]
+					const lionData = this.renderer.lions.get(blockData.id)
+					if (lionData && blockData.length > 3) {
+						if (!blocks.find((b) => b.blockId === blockData.id)) {
+							const map = {
+								left: blockData.startCol + blockData.length - 1,
+								right: blockData.startCol
+							}
+							// 更新狮子方块数据
+							this.state.board[row][map[lionData.direction]] = null
+							const data = {
+								blockId: blockData.id,
+								startRow: row,
+								endRow: row,
+								startCol: col,
+								endCol: col,
+								startLength: blockData.length,
+								endLength: blockData.length - 1,
+								animal: blockData.animal
+							}
+							blocks.push(data)
+						}
+						// 只减少长度
+						if (this.state.board[row][col]) {
+							this.state.board[row][col].length = blockData.length - 1
+							if (lionData.direction === 'right') {
+								this.state.board[row][col].startCol = blockData.startCol + 1
+							}
+						}
+					}
+				}
+			}
+
+			// 如果没有方块，直接返回
+			if (!blocks.length) {
+				resolve()
+				return
+			}
+			await this.renderer.animateBlock(blocks, 'buffalo')
+			resolve()
+		})
+	}
+
 	updateBoardState(newRow) {
 		// 更新游戏状态中的board数组
 		for (let row = 0; row < this.state.boardSizeH - 1; row++) {
@@ -276,8 +328,6 @@ class GameLogic {
 				// 添加积分
 				this.state.addPoints(pointsEarned, pointsEarned2)
 
-				// 更新分数显示
-				this.renderer.updateScore()
 				const animations = [this.renderer.animateBlock(blocks, 'eliminating')]
 				if (blocks2.length) {
 					animations.push(this.renderer.animateBlock(blocks2, 'buffalo'))

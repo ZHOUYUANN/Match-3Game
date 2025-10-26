@@ -21,6 +21,7 @@ class GameController {
 
 		this.skillTextElement = document.getElementById('skillText')
 		this.gameMaskElement = document.getElementById('gameMask')
+		this.maskCancelElement = document.getElementById('maskCancel')
 	}
 
 	setupEventListeners() {
@@ -32,6 +33,12 @@ class GameController {
 
 		// 添加技能按钮事件
 		this.skillTextElement.addEventListener('click', this.handleSkillTextClick.bind(this))
+		this.maskCancelElement.addEventListener('click', this.handleMaskCancelClick.bind(this))
+	}
+
+	handleMaskCancelClick() {
+		this.isSelectingSkillTarget = false
+		this.gameMaskElement.classList.remove('show')
 	}
 
 	handleSkillTextClick() {
@@ -39,7 +46,7 @@ class GameController {
 			this.renderer.showMessage({ message: '技能点不足！' })
 			return
 		}
-		if (this.isSelectingSkillTarget || this.state.isFreezeMode) {
+		if (this.isSelectingSkillTarget || this.state.isFreezeMode || this.state.isAnimating || this.state.gameOver) {
 			return
 		}
 		this.soundManager.play('falling')
@@ -76,8 +83,8 @@ class GameController {
 			this.state.skill.currentPoints = this.state.skill.currentPoints - this.state.skill.threshold
 			this.state.skill.threshold = newThreshold
 
-			this.renderer.updateScore()
 			this.skillManager.activateSkill(blockData)
+			this.renderer.updateScore()
 
 			return
 		}
@@ -149,10 +156,18 @@ class GameController {
 		const transformX = this.currentBlockGroup.startCol * (cellSize + gap) + limitedDeltaX
 		const transformY = this.currentBlockGroup.row * (cellSize + gap)
 
-		const blocks = document.querySelectorAll(`.block[data-block-id="${this.currentBlockGroup.id}"]`)
-		blocks.forEach((block) => {
-			block.style.transform = `translate(${transformX}px, ${transformY}px)`
-		})
+		const block = document.querySelector(`.block[data-block-id="${this.currentBlockGroup.id}"]`)
+		let scaleX = 1
+		if (block.dataset.direction) {
+			if (block.dataset.direction === 'left') {
+				scaleX = 1
+			} else {
+				scaleX = -1
+			}
+		} else {
+			scaleX = 1
+		}
+		block.style.transform = `translate(${transformX}px, ${transformY}px) scaleX(${scaleX})`
 
 		// 更新拖拽的block位置
 		this.renderer.dragBlockMarker.style.transform = `translateX(${transformX}px)`
@@ -182,8 +197,6 @@ class GameController {
 		this.renderer.gameWrapper.classList.add('game-disabled')
 		this.renderer.defaultBlockMarker.style.visibility = 'hidden'
 		this.renderer.dragBlockMarker.style.visibility = 'hidden'
-		// 重置连击计数
-		this.state.currentCombo = 0
 
 		// 执行移动动画
 		await this.blockMove(this.currentBlockGroup.startCol + moveCells, limitedDeltaX)
@@ -199,11 +212,16 @@ class GameController {
 				this.state.round++
 
 				await this.logic.processGameEffects()
+				// 检查狮子方块
+				await this.logic.checkLionBlock()
 				await this.logic.addNewRow()
 				await this.logic.processGameEffects()
 			}
+			this.renderer.updateScore()
 		}
-		this.renderer.updateScore()
+
+		// 重置连击计数
+		this.state.currentCombo = 0
 		this.renderer.gameWrapper.classList.remove('game-disabled')
 		this.state.isAnimating = false
 

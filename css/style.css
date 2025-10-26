@@ -803,16 +803,11 @@ h1 {
 	z-index: 399;
 }
 
-.block.eliminating {
-	z-index: 499;
-}
-
 .block-num {
 	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 9;
+	top: 0;
+	left: 0;
+	z-index: 999;
 	visibility: hidden;
 	color: #a5eb9c;
 	text-shadow: -1px -1px 0 #333, 0 -1px 0 #333, 1px -1px 0 #333, -1px 0 0 #333, 1px 0 0 #333, -1px 1px 0 #333,
@@ -837,12 +832,21 @@ h1 {
 
 .block-star {
 	position: absolute;
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
-	background: #4caf50;
 	visibility: hidden;
 	z-index: 599;
+}
+
+.block-star::before {
+	display: block;
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 10px;
+	height: 10px;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	background: #4caf50;
 }
 
 .block.dragging {
@@ -855,8 +859,13 @@ h1 {
 }
 
 .block.zebra {
-	background: url('../img/zebra_icon.png') left no-repeat;
-	background-size: auto 100%;
+	border-style: solid;
+	border-width: 0 31.7812px;
+	border-image: url('../img/bm.gif') 0 200;
+	-webkit-border-image: url('../img/bm.gif') 0 200;
+	-moz-border-image: url('../img/bm.gif') 0 200;
+	background: none;
+	box-sizing: border-box;
 }
 
 .block.deer {
@@ -865,13 +874,23 @@ h1 {
 }
 
 .block.elephant {
-	background: url('../img/elephant_icon.png') left no-repeat;
-	background-size: auto 100%;
+	border-style: solid;
+	border-width: 0 31.7812px;
+	border-image: url('../img/dx.gif') 0 200;
+	-webkit-border-image: url('../img/dx.gif') 0 200;
+	-moz-border-image: url('../img/dx.gif') 0 200;
+	background: none;
+	box-sizing: border-box;
 }
 
 .block.lion {
-	background: url('../img/lion_icon.png') left no-repeat;
-	background-size: auto 100%;
+	border-style: solid;
+	border-width: 0 31.7812px;
+	border-image: url('../img/sz.gif') 0 200;
+	-webkit-border-image: url('../img/sz.gif') 0 200;
+	-moz-border-image: url('../img/sz.gif') 0 200;
+	background: none;
+	box-sizing: border-box;
 }
 
 .block.bear {
@@ -880,8 +899,19 @@ h1 {
 }
 
 .block.buffalo {
-	background: url('../img/buffalo_icon.png') left no-repeat;
-	background-size: auto 100%;
+	border-style: solid;
+	border-width: 0 31.7812px;
+	border-image: url('../img/yn.gif') 0 200;
+	-webkit-border-image: url('../img/yn.gif') 0 200;
+	-moz-border-image: url('../img/yn.gif') 0 200;
+	background: none;
+	box-sizing: border-box;
+}
+
+.block.buffalo[data-length='1'] {
+	background: url('../img/yn2.gif') left no-repeat;
+	background-size: 100% auto;
+	border: none;
 }
 
 .block-default-marker {
@@ -1037,10 +1067,19 @@ h1 {
 	color: #ffffe3;
 	font-size: 15px;
 	display: flex;
-	justify-content: center;
-	padding-top: 130px;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	padding: 120px 0 40px 0;
 	box-sizing: border-box;
 	visibility: hidden;
+}
+
+.game-mask .mask-cancel {
+	color: #ffffe3;
+	padding: 4px 10px;
+	border-radius: 2px;
+	cursor: pointer;
 }
 
 .game-mask.show {

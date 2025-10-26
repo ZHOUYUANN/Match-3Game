@@ -5,6 +5,7 @@ class GameRenderer {
 		this.gameWrapper = gameState.options.el
 
 		this.maxBottom = 20
+		this.lions = new Map()
 
 		this.scoreElement = document.getElementById('score')
 
@@ -168,20 +169,21 @@ class GameRenderer {
 		return block
 	}
 
-	createStarElement(blockDom, oldLeft, oldTop) {
-		const star = document.createElement('div')
-		star.classList.add('block-star')
+	createTipElement(blockDom, className, oldLeft, oldTop) {
+		const dom = document.createElement('div')
+		dom.classList.add(className)
 
-		const width = 10
-		const height = 10
+		const width = 20
+		const height = 20
 		const x = oldLeft + blockDom.offsetWidth / 2 - width / 2
 		const y = oldTop + blockDom.offsetHeight / 2 - height / 2
-		star.style.width = `${width}px`
-		star.style.height = `${height}px`
-		star.style.transform = `translate(${x}px, ${y}px)`
+
+		dom.style.width = `${width}px`
+		dom.style.height = `${height}px`
+		dom.style.transform = `translate(${x}px, ${y}px)`
 
 		return {
-			starDom: star,
+			dom,
 			x,
 			y
 		}
@@ -213,10 +215,7 @@ class GameRenderer {
 
 	// 更新冻结技能按钮
 	updateFreezeSkill() {
-		if (this.state.skill.skillPoint > 0) {
-			this.skillPointElement.classList.add('active')
-			this.skillTextElement.classList.add('active')
-
+		if (this.state.freezeMovesLeft > 0) {
 			this.state.animate({
 				keyframes: [
 					{ offset: 0, value: 1 },
@@ -230,6 +229,10 @@ class GameRenderer {
 					this.gameBubbleElement.style.transform = `scale(${value})`
 				}
 			})
+		}
+		if (this.state.skill.skillPoint > 0) {
+			this.skillPointElement.classList.add('active')
+			this.skillTextElement.classList.add('active')
 		} else {
 			this.skillPointElement.classList.remove('active')
 			this.skillTextElement.classList.remove('active')
@@ -264,7 +267,17 @@ class GameRenderer {
 				const newLeft = block.endCol * (cellSize + gap)
 				const oldTop = block.startRow * (cellSize + gap)
 				const newTop = block.endRow * (cellSize + gap)
-
+				// 设置水平翻转
+				let scaleX = 1
+				if (blockDom.dataset.direction) {
+					if (blockDom.dataset.direction === 'left') {
+						scaleX = 1
+					} else {
+						scaleX = -1
+					}
+				} else {
+					scaleX = 1
+				}
 				// 下落，上升动画
 				if (type === 'falling' || type === 'rising') {
 					// 更新 block 的数据属性
@@ -276,7 +289,7 @@ class GameRenderer {
 							end: newTop,
 							duration: type === 'rising' ? 300 : 120,
 							onUpdate: (value) => {
-								blockDom.style.transform = `translate(${newLeft}px, ${value}px)`
+								blockDom.style.transform = `translate(${newLeft}px, ${value}px) scaleX(${scaleX})`
 							}
 						})
 					)
@@ -290,7 +303,7 @@ class GameRenderer {
 							begin: oldLeft,
 							end: newLeft,
 							onUpdate: (value) => {
-								blockDom.style.transform = `translate(${value}px, ${newTop}px)`
+								blockDom.style.transform = `translate(${value}px, ${newTop}px) scaleX(${scaleX})`
 							}
 						})
 					)
@@ -308,33 +321,43 @@ class GameRenderer {
 							cubicBezier: [0.84, 0.0, 0.0, 1],
 							onUpdate: (value) => {
 								blockDom.style.width = `${value}px`
+								if (blockDom.dataset.direction === 'right') {
+									blockDom.style.transform = `translate(${oldLeft + oldWidth - value}px, ${oldTop}px) scaleX(-1)`
+								}
+							},
+							onEnd: () => {
+								blockDom.dataset.length = block.endLength
 							}
 						})
 					)
 				}
 				// 使用技能
 				if (type === 'skill') {
-					const { starDom, x, y } = this.createStarElement(blockDom, oldLeft, oldTop)
+					const { dom: starDom, x: starX, y: starY } = this.createTipElement(blockDom, 'block-star', oldLeft, oldTop)
 					blockDom.parentNode.insertBefore(starDom, blockDom)
 
 					animates.push(
 						this.state.animate({
 							begin: 0,
-							end: y,
-							duration: 300,
+							end: starY,
+							duration: 1000,
 							cubicBezier: [0.84, 0.0, 0.0, 1],
 							onBefore: () => {
 								starDom.style.visibility = 'visible'
 								starDom.style.opacity = 1
 							},
 							onUpdate: (value) => {
-								starDom.style.transform = `translate(${x * (value / y)}px, ${value}px)`
+								starDom.style.transform = `translate(${starX * (value / starY)}px, ${value}px)`
 							},
 							onEnd: () => {
 								starDom.remove()
 							}
 						})
 					)
+				}
+				// 狮子技能
+				if (type === 'lion') {
+					animates.push(this.lionAnimations(blockDom, block, oldLeft, oldTop))
 				}
 				// 消除动画
 				if (type === 'eliminating') {
@@ -358,30 +381,124 @@ class GameRenderer {
 		})
 	}
 
+	async lionAnimations(blockDom, block, oldLeft, oldTop) {
+		// 1. 执行第一段动画：从初始状态到掉头点，或直接到最终状态
+		const cellSize = this.state.cellSize
+		const gap = this.state.gap
+		const firstEndState = block.plan.turnAroundState || block.plan.finalState
+
+		const oldWidth = block.startLength * cellSize + (block.startLength - 1) * gap
+		const newWidth = firstEndState.length * cellSize + (firstEndState.length - 1) * gap
+
+		const direction = firstEndState.startCol < block.startCol ? 'left' : 'right'
+
+		await this.state.animate({
+			begin: oldWidth,
+			end: newWidth,
+			duration: 600,
+			cubicBezier: [0.84, 0.0, 0.0, 1],
+			onBefore: () => {
+				blockDom.style.zIndex = 599
+				const eatenBlockIds = block.plan.eatenBlockIdsFirst || []
+
+				if (!eatenBlockIds.length) return
+				this.soundManager.play('eat')
+				eatenBlockIds.forEach((item) => {
+					const eatenBlockDom = document.querySelector(`.block[data-block-id="${item}"]`)
+					if (!eatenBlockDom) return
+					eatenBlockDom.remove()
+				})
+			},
+			onUpdate: (value) => {
+				blockDom.style.width = `${value}px`
+				blockDom.style.transform = `translate(${oldLeft}px, ${oldTop}px) scaleX(-1)`
+				if (direction === 'left') {
+					blockDom.style.transform = `translate(${oldLeft + oldWidth - value}px, ${oldTop}px) scaleX(1)`
+				}
+			},
+			onEnd: () => {
+				blockDom.style.zIndex = 399
+				blockDom.dataset.direction = direction
+				blockDom.dataset.length = firstEndState.length
+				blockDom.dataset.col = firstEndState.startCol
+
+				this.lions.set(block.blockId, { ...block, direction: blockDom.dataset.direction })
+			}
+		})
+
+		await this.state.sleep(20)
+		// 2. 如果发生了掉头，则执行第二段动画
+		if (block.plan.turnAroundState) {
+			if (
+				block.plan.turnAroundState.startCol === block.plan.finalState.startCol &&
+				block.plan.turnAroundState.length === block.plan.finalState.length
+			) {
+				return
+			}
+			const { length, startCol } = block.plan.finalState
+			const newWidth2 = length * cellSize + (length - 1) * gap
+
+			await this.state.animate({
+				begin: newWidth,
+				end: newWidth2,
+				duration: 600,
+				cubicBezier: [0.84, 0.0, 0.0, 1],
+				onBefore: () => {
+					const eatenBlockIds = block.plan.eatenBlockIdsSecond || []
+
+					if (!eatenBlockIds.length) return
+					this.soundManager.play('eat')
+					eatenBlockIds.forEach((item) => {
+						const eatenBlockDom = document.querySelector(`.block[data-block-id="${item}"]`)
+						if (!eatenBlockDom) return
+						eatenBlockDom.remove()
+					})
+				},
+				onUpdate: (value) => {
+					blockDom.style.width = `${value}px`
+					blockDom.style.transform = `translate(0, ${oldTop}px) scaleX(-1)`
+					// 掉头
+					if (direction !== 'left') {
+						blockDom.style.transform = `translate(${oldLeft + newWidth - value}px, ${oldTop}px) scaleX(1)`
+					}
+				},
+				onEnd: () => {
+					blockDom.style.zIndex = 399
+					blockDom.dataset.direction = direction === 'left' ? 'right' : 'left'
+					blockDom.dataset.length = length
+					blockDom.dataset.col = startCol
+
+					const lionData = this.lions.get(block.blockId)
+					if (lionData && block.plan.finalState.length < 9) {
+						lionData.direction = blockDom.dataset.direction
+					}
+				}
+			})
+		}
+	}
+
 	async eliminatingAnimations(blockDom, block, oldLeft, oldTop) {
-		const { starDom, x, y } = this.createStarElement(blockDom, oldLeft, oldTop)
-		const numDom = document.createElement('div')
-		numDom.classList.add('block-num')
+		const { dom: starDom, x: starX, y: starY } = this.createTipElement(blockDom, 'block-star', oldLeft, oldTop)
+		const { dom: numDom, x: numX, y: numY } = this.createTipElement(blockDom, 'block-num', oldLeft, oldTop)
 		numDom.dataset.length = block.length
 		numDom.innerHTML = block.comboMultiplier
 
-		blockDom.appendChild(numDom)
-		blockDom.classList.add('eliminating')
 		blockDom.parentNode.insertBefore(starDom, blockDom)
+		blockDom.parentNode.insertBefore(numDom, blockDom)
 		// 使用 await 等待每个动画完成，再执行下一个
 		await this.state.animate({
 			begin: 0,
-			end: 25,
+			end: 15,
 			duration: 600,
 			cubicBezier: [0.635, 0.005, 0, 0.995],
 			onBefore: () => {
 				numDom.style.visibility = 'visible'
 			},
 			onUpdate: (value) => {
-				numDom.style.transform = `translate(-50%, calc(-50% - ${value}px))`
+				numDom.style.transform = `translate(${numX}px, ${numY - value}px)`
 			},
 			onEnd: () => {
-				numDom.style.visibility = 'hidden'
+				numDom.remove()
 			}
 		})
 		await this.state.animate({
@@ -413,16 +530,15 @@ class GameRenderer {
 		})
 		// 星星飞出动画
 		this.state.animate({
-			begin: y,
+			begin: starY,
 			end: 0,
-			duration: 340,
+			duration: 500,
 			cubicBezier: [0.04, 0.11, 0.6, 0.86],
 			onBefore: () => {
 				starDom.style.visibility = 'visible'
-				starDom.style.opacity = 1
 			},
 			onUpdate: (value) => {
-				starDom.style.transform = `translate(${x * (value / y)}px, ${value}px)`
+				starDom.style.transform = `translate(${starX * (value / starY)}px, ${value}px)`
 			},
 			onEnd: () => {
 				starDom.remove()
