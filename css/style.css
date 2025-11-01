@@ -42,7 +42,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bg-1.mh7cscam.webp') no-repeat;
+	background: url('../img/bg-1.png') no-repeat;
 	background-size: cover;
 	pointer-events: none;
 }
@@ -55,19 +55,19 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 13.58%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bgb-2.8vnbhvh4r8.webp') no-repeat;
+	background: url('../img/bgb-2.png') no-repeat;
 	background-size: cover;
 	pointer-events: none;
 	z-index: 199;
 }
 
 .game-container.winter::before {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bg-12.6m4aydwe9t.webp') no-repeat;
+	background: url('../img/bg-12.png') no-repeat;
 	background-size: cover;
 }
 
 .game-container.winter::after {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bgb-22.6pnww3ph06.webp') no-repeat;
+	background: url('../img/bgb-22.png') no-repeat;
 	background-size: cover;
 }
 
@@ -106,13 +106,13 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/cao.7lkebjz5gz.webp') bottom no-repeat;
+	background: url('../img/cao.png') bottom no-repeat;
 	background-size: 100% auto;
 	pointer-events: none;
 }
 
 .game-container.winter .game-stage::after {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/cao2.7pp2sehrp.webp') bottom no-repeat;
+	background: url('../img/cao2.png') bottom no-repeat;
 	background-size: 100% auto;
 }
 
@@ -139,7 +139,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/ostrich.8hgvr08tyx.webp');
+	background: url('../img/ostrich.png');
 	background-size: 900% 100%;
 	animation: ostrich1 1s steps(9) infinite;
 }
@@ -176,7 +176,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/zebra.4n8481qw7q.webp');
+	background: url('../img/zebra.png');
 	background-size: 800% 100%;
 	animation: zebra1 0.6s steps(8) infinite;
 }
@@ -213,7 +213,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/deer.5mo7l7tn5k.webp');
+	background: url('../img/deer.png');
 	background-size: 800% 100%;
 	animation: deer1 1s steps(8) infinite;
 }
@@ -250,7 +250,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/elephant.86u1xutls2.webp');
+	background: url('../img/elephant.png');
 	background-size: 1500% 100%;
 	animation: elephant1 1s steps(15) infinite;
 }
@@ -287,7 +287,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/lion.3yeuo13d0b.webp');
+	background: url('../img/lion.png');
 	background-size: 1500% 100%;
 	animation: lion1 0.9s steps(15) infinite;
 }
@@ -324,7 +324,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bear.9o06zlxqg8.webp');
+	background: url('../img/bear.png');
 	background-size: 1600% 100%;
 	animation: bear1 0.8s steps(16) infinite;
 }
@@ -361,7 +361,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/buffalo.mh7cscc2.webp');
+	background: url('../img/buffalo.png');
 	background-size: 1500% 100%;
 	animation: buffalo1 0.8s steps(15) infinite;
 }
@@ -407,7 +407,7 @@ h1 {
 .game-score {
 	width: 120px;
 	height: 77px;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/score.2ksbjzsb0a.webp') no-repeat;
+	background: url('../img/score.png') no-repeat;
 	background-size: 100% 100%;
 	position: relative;
 	top: -4px;
@@ -446,7 +446,7 @@ h1 {
 	right: 10px;
 	width: 110px;
 	height: 54px;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/round.7zqu2f7ge2.webp') no-repeat;
+	background: url('../img/round.png') no-repeat;
 	background-size: 100% 100%;
 	font-size: 12px;
 }
@@ -475,7 +475,7 @@ h1 {
 	display: block;
 	width: 30px;
 	height: 20px;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/yeniu.3k8ex5v2ay.webp') no-repeat;
+	background: url('../img/yeniu.png') no-repeat;
 	background-size: 100% 100%;
 	margin-right: 3px;
 }
@@ -561,7 +561,7 @@ h1 {
 	width: 21%;
 	height: 0;
 	padding-bottom: calc(220 / 310 * 21%);
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/skill.1vz1zz4rzw.webp') no-repeat;
+	background: url('../img/skill.png') no-repeat;
 	background-size: 100% 100%;
 	color: transparent;
 	font-size: 0;
@@ -571,7 +571,7 @@ h1 {
 }
 
 .skill-text.active {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/lion2.3goszg1zfh.webp');
+	background: url('../img/lion2.png');
 	background-size: 1500% 100%;
 	animation: lion1 0.9s steps(15) infinite;
 	filter: grayscale(0);
@@ -656,7 +656,7 @@ h1 {
 	top: -23px;
 	width: 90%;
 	padding: 7% 5.8%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/111.1vz1zz4ruy.webp') no-repeat;
+	background: url('../img/111.png') no-repeat;
 	background-size: 100% 100%;
 	border-radius: 3px;
 	box-sizing: border-box;
@@ -664,7 +664,7 @@ h1 {
 }
 
 .game-container.winter .game-wrapper {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/222.9ddd6giia9.webp') no-repeat;
+	background: url('../img/222.png') no-repeat;
 	background-size: 100% 100%;
 }
 
@@ -854,63 +854,75 @@ h1 {
 }
 
 .block.ostrich {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/ostrich_icon.9kgl1w4nud.webp') center no-repeat;
+	background: url('../img/tn.gif') center no-repeat;
 	background-size: auto 100%;
 }
 
 .block.zebra {
 	border-style: solid;
 	border-width: 0 31.7812px;
-	border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bm.4joiabxt98.gif') 0 200;
-	-webkit-border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bm.4joiabxt98.gif') 0 200;
-	-moz-border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bm.4joiabxt98.gif') 0 200;
+	border-image: url('../img/bm.gif') 0 200;
+	-webkit-border-image: url('../img/bm.gif') 0 200;
+	-moz-border-image: url('../img/bm.gif') 0 200;
 	background: none;
 	box-sizing: border-box;
 }
 
 .block.deer {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/deer_icon.8z6xfla7hy.webp') left no-repeat;
-	background-size: auto 100%;
+	border-style: solid;
+	border-width: 0 31.7812px;
+	border-image: url('../img/ml.gif') 0 200;
+	-webkit-border-image: url('../img/ml.gif') 0 200;
+	-moz-border-image: url('../img/ml.gif') 0 200;
+	background: none;
+	box-sizing: border-box;
 }
 
 .block.elephant {
 	border-style: solid;
 	border-width: 0 31.7812px;
-	border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/dx.8vnbhvh4rn.gif') 0 200;
-	-webkit-border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/dx.8vnbhvh4rn.gif') 0 200;
-	-moz-border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/dx.8vnbhvh4rn.gif') 0 200;
+	border-image: url('../img/dx.gif') 0 200;
+	-webkit-border-image: url('../img/dx.gif') 0 200;
+	-moz-border-image: url('../img/dx.gif') 0 200;
 	background: none;
 	box-sizing: border-box;
+}
+
+.block.elephant[data-length='1'] {
+	background: url('../img/dx2.gif') left no-repeat;
+	background-size: auto 100%;
+	border: none;
 }
 
 .block.lion {
 	border-style: solid;
 	border-width: 0 31.7812px;
-	border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/sz.5c1ds2ef29.gif') 0 200;
-	-webkit-border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/sz.5c1ds2ef29.gif') 0 200;
-	-moz-border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/sz.5c1ds2ef29.gif') 0 200;
+	border-image: url('../img/sz.gif') 0 200;
+	-webkit-border-image: url('../img/sz.gif') 0 200;
+	-moz-border-image: url('../img/sz.gif') 0 200;
 	background: none;
 	box-sizing: border-box;
 }
 
 .block.bear {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/bear_icon.pfqrdfva7.webp') left no-repeat;
+	background: url('../img/bjx.gif') left no-repeat;
 	background-size: auto 100%;
 }
 
 .block.buffalo {
 	border-style: solid;
 	border-width: 0 31.7812px;
-	border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/yn.eswy80n6p.gif') 0 200;
-	-webkit-border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/yn.eswy80n6p.gif') 0 200;
-	-moz-border-image: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/yn.eswy80n6p.gif') 0 200;
+	border-image: url('../img/yn.gif') 0 200;
+	-webkit-border-image: url('../img/yn.gif') 0 200;
+	-moz-border-image: url('../img/yn.gif') 0 200;
 	background: none;
 	box-sizing: border-box;
+	z-index: 199;
 }
 
 .block.buffalo[data-length='1'] {
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/yn2.3yeuo13cym.gif') left no-repeat;
-	background-size: 100% auto;
+	background: url('../img/yn2.gif') left no-repeat;
+	background-size: auto 100%;
 	border: none;
 }
 
@@ -994,7 +1006,7 @@ h1 {
 	opacity: 1;
 	color: transparent;
 	font-size: 0;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/game_over.5q7tixmpvz.webp') no-repeat center;
+	background: url('../img/game_over.png') no-repeat center;
 	background-size: cover;
 	width: 80%;
 	height: 21px;
@@ -1039,7 +1051,7 @@ h1 {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: url('https://ZHOUYUANN.github.io/picx-images-hosting/xxl/buffalo_warn.7snm6zlawe.png');
+	background: url('../img/buffalo_warn.png');
 	background-size: 2100% 100%;
 }
 

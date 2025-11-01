@@ -22,8 +22,8 @@ class GameState {
 		// 新增技能相关属性
 		this.skill = {
 			currentPoints: 0,
-			maxPoints: 2500,
-			threshold: 1000,
+			maxPoints: 250,
+			threshold: 100,
 			skillPoint: 0
 		}
 

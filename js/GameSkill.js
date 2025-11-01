@@ -9,7 +9,7 @@ class GameSkill {
 			// ostrich: this.handleOstrichSkill.bind(this),
 			// zebra: this.handleZebraSkill.bind(this),
 			// deer: this.handleDeerSkill.bind(this),
-			// elephant: this.handleElephantSkill.bind(this),
+			elephant: this.handleElephantSkill.bind(this),
 			lion: this.handleLionSkill.bind(this),
 			bear: this.handleBearSkill.bind(this)
 		}
@@ -257,15 +257,56 @@ class GameSkill {
 		predatorBlock.startCol = newStartCol
 	}
 
-	// -------------------------- 其他动物技能占位符 --------------------------
+	// -------------------------- 狮子技能结束 --------------------------
 
+	// --------------------------- 大象技能 --------------------------
+	// 大象技能：缩短变为一格
 	async handleElephantSkill() {
-		// 消耗技能点
-		if (this.state.skill.skillPoint < 1) {
-			this.renderer.showMessage({ message: '技能点不足！' })
-			return
+		let blocks = []
+
+		// 查找所有大象方块并处理
+		for (let row = 0; row < this.state.boardSizeH; row++) {
+			for (let col = 0; col < this.state.boardSizeX; col++) {
+				const blockData = this.state.board[row][col]
+				if (blockData && blockData.length > 1 && blockData.animal === 'elephant') {
+					// 跳过第一个格子
+					if (blockData && blockData.startCol === col) {
+						this.state.board[row][col] = null
+						continue
+					}
+					if (!blocks.find((b) => b.blockId === blockData.id)) {
+						blocks.push({
+							blockId: blockData.id,
+							startLength: blockData.length,
+							endLength: 2,
+							endLength2: 1, // 添加第二个结束长度用于动画
+							startRow: row,
+							startCol: col - 1,
+							endCol: col,
+							animal: blockData.animal
+						})
+						this.state.board[row][col] = {
+							...blockData,
+							startCol: col,
+							length: 1
+						}
+					} else {
+						this.state.board[row][col] = null
+					}
+				}
+			}
 		}
+
+		// 如果没有大象方块，直接返回
+		if (!blocks.length) return
+
+		await this.renderer.animateBlock(blocks, 'skill')
+		await this.renderer.animateBlock(blocks, 'elephant')
+		await this.state.sleep(500)
+		this.logic.processGameEffects()
 	}
+
+	// --------------------------- 大象技能结束 --------------------------
 
 	async handleDeerSkill() {
 		// 消耗技能点

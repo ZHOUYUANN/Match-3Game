@@ -280,9 +280,6 @@ class GameRenderer {
 				}
 				// 下落，上升动画
 				if (type === 'falling' || type === 'rising') {
-					// 更新 block 的数据属性
-					blockDom.dataset.row = block.endRow
-
 					animates.push(
 						this.state.animate({
 							begin: oldTop,
@@ -290,20 +287,24 @@ class GameRenderer {
 							duration: type === 'rising' ? 300 : 120,
 							onUpdate: (value) => {
 								blockDom.style.transform = `translate(${newLeft}px, ${value}px) scaleX(${scaleX})`
+							},
+							onEnd: () => {
+								blockDom.dataset.row = block.endRow
 							}
 						})
 					)
 				}
 				// 移动动画
 				if (type === 'move') {
-					blockDom.dataset.col = block.endCol
-
 					animates.push(
 						this.state.animate({
 							begin: oldLeft,
 							end: newLeft,
 							onUpdate: (value) => {
 								blockDom.style.transform = `translate(${value}px, ${newTop}px) scaleX(${scaleX})`
+							},
+							onEnd: () => {
+								blockDom.dataset.col = block.endCol
 							}
 						})
 					)
@@ -358,6 +359,38 @@ class GameRenderer {
 				// 狮子技能
 				if (type === 'lion') {
 					animates.push(this.lionAnimations(blockDom, block, oldLeft, oldTop))
+				}
+				// 大象技能
+				if (type === 'elephant') {
+					const oldWidth = block.startLength * cellSize + (block.startLength - 1) * gap
+					const newWidth = block.endLength * cellSize + (block.endLength - 1) * gap
+					const newWidth2 = block.endLength2 * cellSize + (block.endLength2 - 1) * gap
+
+					// 计算初始中心位置
+					const initialCenter = oldLeft + oldWidth / 2
+
+					animates.push(
+						this.state.animate({
+							begin: oldWidth,
+							end: newWidth,
+							duration: 300,
+							cubicBezier: [0.84, 0.0, 0.0, 1],
+							onUpdate: (value) => {
+								const currentTranslate = initialCenter - value / 2
+
+								blockDom.style.width = `${value}px`
+								blockDom.style.transform = `translate(${currentTranslate}px, ${oldTop}px) scaleX(1)`
+							},
+							onEnd: () => {
+								const currentTranslate2 = initialCenter - newWidth2 / 2
+
+								blockDom.style.width = `${newWidth2}px`
+								blockDom.style.transform = `translate(${currentTranslate2}px, ${oldTop}px) scaleX(1)`
+								blockDom.dataset.length = 1
+								blockDom.dataset.col = block.endCol
+							}
+						})
+					)
 				}
 				// 消除动画
 				if (type === 'eliminating') {
