@@ -7,8 +7,8 @@ class GameSkill {
 		// 技能映射表
 		this.skillMap = {
 			// ostrich: this.handleOstrichSkill.bind(this),
-			// zebra: this.handleZebraSkill.bind(this),
-			// deer: this.handleDeerSkill.bind(this),
+			zebra: this.handleZebraSkill.bind(this),
+			deer: this.handleDeerSkill.bind(this),
 			elephant: this.handleElephantSkill.bind(this),
 			lion: this.handleLionSkill.bind(this),
 			bear: this.handleBearSkill.bind(this)
@@ -256,10 +256,8 @@ class GameSkill {
 		predatorBlock.length = newLength
 		predatorBlock.startCol = newStartCol
 	}
-
 	// -------------------------- 狮子技能结束 --------------------------
 
-	// --------------------------- 大象技能 --------------------------
 	// 大象技能：缩短变为一格
 	async handleElephantSkill() {
 		let blocks = []
@@ -306,14 +304,46 @@ class GameSkill {
 		this.logic.processGameEffects()
 	}
 
-	// --------------------------- 大象技能结束 --------------------------
-
+	// 麋鹿技能：分裂成一格
 	async handleDeerSkill() {
-		// 消耗技能点
-		if (this.state.skill.skillPoint < 1) {
-			this.renderer.showMessage({ message: '技能点不足！' })
-			return
+		let blocks = []
+		let blockId2 = null
+
+		// 查找所有麋鹿方块并处理
+		for (let row = 0; row < this.state.boardSizeH; row++) {
+			for (let col = 0; col < this.state.boardSizeX; col++) {
+				const blockData = this.state.board[row][col]
+				if (blockData && blockData.length > 1 && blockData.animal === 'deer') {
+					if (!blocks.find((b) => b.blockId === blockData.id)) {
+						blockId2 = this.state.nextBlockId++
+						blocks.push({
+							blockId: blockData.id,
+							blockId2,
+							startLength: blockData.length,
+							endLength: 1,
+							startRow: row,
+							startCol: col,
+							endCol: col + 1,
+							animal: blockData.animal
+						})
+					}
+					this.state.board[row][col] = {
+						...blockData,
+						id: blockData.startCol === col ? blockData.id : blockId2,
+						startCol: col,
+						length: 1
+					}
+				}
+			}
 		}
+
+		// 如果没有麋鹿方块，直接返回
+		if (!blocks.length) return
+
+		await this.renderer.animateBlock(blocks, 'skill')
+		await this.renderer.animateBlock(blocks, 'deer')
+		await this.state.sleep(500)
+		this.logic.processGameEffects()
 	}
 
 	async handleZebraSkill() {

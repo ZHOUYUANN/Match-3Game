@@ -392,6 +392,43 @@ class GameRenderer {
 						})
 					)
 				}
+				// 麋鹿技能
+				if (type === 'deer') {
+					const newWidth = block.endLength * cellSize + (block.endLength - 1) * gap
+
+					animates.push(
+						this.state.animate({
+							keyframes: [
+								{ offset: 0, value: 0 },
+								{ offset: 0.2, value: 1.4 },
+								{ offset: 0.4, value: 1.2 },
+								{ offset: 0.6, value: 1.6 },
+								{ offset: 0.8, value: 1.5 },
+								{ offset: 1, value: 1.8 }
+							],
+							duration: 400,
+							cubicBezier: [0.175, 0.885, 0.32, 1.275],
+							onBefore: () => {
+								blockDom.style.zIndex = 599
+							},
+							onUpdate: (value) => {
+								blockDom.style.transform = `translate(${oldLeft}px, ${oldTop}px) scaleX(${value})`
+							},
+							onEnd: () => {
+								blockDom.style.zIndex = 399
+								blockDom.style.width = `${newWidth}px`
+								blockDom.style.transform = `translate(${oldLeft}px, ${oldTop}px) scaleX(1)`
+								blockDom.dataset.length = block.endLength
+
+								const clonedElement = blockDom.cloneNode()
+								clonedElement.dataset.col = block.endCol
+								clonedElement.dataset.blockId = block.blockId2
+								clonedElement.style.transform = `translate(${newLeft}px, ${oldTop}px) scaleX(1)`
+								blockDom.insertAdjacentElement('afterend', clonedElement)
+							}
+						})
+					)
+				}
 				// 消除动画
 				if (type === 'eliminating') {
 					blockDom.dataset.value = block.comboMultiplier
@@ -521,7 +558,7 @@ class GameRenderer {
 		// 使用 await 等待每个动画完成，再执行下一个
 		await this.state.animate({
 			begin: 0,
-			end: 15,
+			end: 18,
 			duration: 600,
 			cubicBezier: [0.635, 0.005, 0, 0.995],
 			onBefore: () => {

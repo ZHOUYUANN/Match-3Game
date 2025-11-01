@@ -878,6 +878,12 @@ h1 {
 	box-sizing: border-box;
 }
 
+.block.deer[data-length='1'] {
+	background: url('../img/ml2.gif') left no-repeat;
+	background-size: auto 100%;
+	border: none;
+}
+
 .block.elephant {
 	border-style: solid;
 	border-width: 0 31.7812px;
