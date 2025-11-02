@@ -95,32 +95,23 @@ class GameController {
 
 		const blockId = Number(block.dataset.blockId)
 		const row = Number(block.dataset.row)
-
-		let startCol = this.state.boardSizeX
-		let endCol = -1
-
-		// 找到整个方块组的起始和结束位置索引
-		for (let col = 0; col < this.state.boardSizeX; col++) {
-			if (this.state.board[row][col] !== null && this.state.board[row][col].id === blockId) {
-				startCol = Math.min(startCol, col)
-				endCol = Math.max(endCol, col)
-			}
-		}
+		const col = Number(block.dataset.col)
+		const length = Number(block.dataset.length)
 
 		// 记录当前拖动的方块组信息
 		this.currentBlockGroup = {
 			id: blockId,
 			row: row,
-			startCol: startCol,
-			length: endCol - startCol + 1
+			startCol: col,
+			length: length
 		}
 
 		// 设置默认的block位置显示
 		const cellSize = this.state.cellSize
 		const gap = this.state.gap
-		const left = startCol * (cellSize + gap)
+		const left = col * (cellSize + gap)
 		const top = row * (cellSize + gap)
-		const width = this.currentBlockGroup.length * cellSize + (this.currentBlockGroup.length - 1) * gap
+		const width = length * cellSize + (length - 1) * gap
 
 		this.draggingBlock.classList.add('dragging')
 		// 设置默认位置的block位置
@@ -149,8 +140,8 @@ class GameController {
 		const cellSize = this.state.cellSize
 		const gap = this.state.gap
 		// 计算最大可移动范围
-		const maxLeft = this.calculateMaxLeftMove()
-		const maxRight = this.calculateMaxRightMove()
+		const maxLeft = this.calculateMaxLeftMove(this.currentBlockGroup)
+		const maxRight = this.calculateMaxRightMove(this.currentBlockGroup)
 		// 限制拖动范围
 		const limitedDeltaX = Math.max(-maxLeft * (cellSize + gap), Math.min(maxRight * (cellSize + gap), deltaX))
 		const transformX = this.currentBlockGroup.startCol * (cellSize + gap) + limitedDeltaX
@@ -181,8 +172,8 @@ class GameController {
 		const cellSize = this.state.cellSize
 		const gap = this.state.gap
 
-		const maxLeft = this.calculateMaxLeftMove()
-		const maxRight = this.calculateMaxRightMove()
+		const maxLeft = this.calculateMaxLeftMove(this.currentBlockGroup)
+		const maxRight = this.calculateMaxRightMove(this.currentBlockGroup)
 		const limitedDeltaX = Math.max(-maxLeft * (cellSize + gap), Math.min(maxRight * (cellSize + gap), deltaX))
 
 		let moveCells = Math.round(deltaX / (cellSize + gap))
@@ -283,7 +274,7 @@ class GameController {
 
 	handleHint() {}
 
-	calculateMaxLeftMove(blockGroup = this.currentBlockGroup) {
+	calculateMaxLeftMove(blockGroup) {
 		let maxLeft = blockGroup.startCol
 		for (let col = blockGroup.startCol - 1; col >= 0; col--) {
 			if (this.state.board[blockGroup.row][col] === null) {
@@ -295,7 +286,7 @@ class GameController {
 		return blockGroup.startCol - maxLeft
 	}
 
-	calculateMaxRightMove(blockGroup = this.currentBlockGroup) {
+	calculateMaxRightMove(blockGroup) {
 		let maxRight = blockGroup.startCol + blockGroup.length - 1
 		for (let col = maxRight + 1; col < this.state.boardSizeX; col++) {
 			if (this.state.board[blockGroup.row][col] === null) {

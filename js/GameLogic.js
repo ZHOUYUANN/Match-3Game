@@ -108,17 +108,23 @@ class GameLogic {
 					if (lionData && blockData.length > 3) {
 						if (!blocks.find((b) => b.blockId === blockData.id)) {
 							const map = {
-								left: blockData.startCol + blockData.length - 1,
-								right: blockData.startCol
+								left: {
+									col: blockData.startCol + blockData.length - 1,
+									endCol: col
+								},
+								right: {
+									col: blockData.startCol,
+									endCol: col + 1
+								}
 							}
 							// 更新狮子方块数据
-							this.state.board[row][map[lionData.direction]] = null
+							this.state.board[row][map[lionData.direction].col] = null
 							const data = {
 								blockId: blockData.id,
 								startRow: row,
 								endRow: row,
 								startCol: col,
-								endCol: col,
+								endCol: map[lionData.direction].endCol,
 								startLength: blockData.length,
 								endLength: blockData.length - 1,
 								animal: blockData.animal

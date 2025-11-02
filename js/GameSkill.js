@@ -100,7 +100,6 @@ class GameSkill {
 	async handleLionSkill() {
 		let blocks = []
 
-		// 查找所有狮子方块并处理
 		for (let row = 0; row < this.state.boardSizeH; row++) {
 			for (let col = 0; col < this.state.boardSizeX; col++) {
 				const blockData = this.state.board[row][col]
@@ -262,7 +261,6 @@ class GameSkill {
 	async handleElephantSkill() {
 		let blocks = []
 
-		// 查找所有大象方块并处理
 		for (let row = 0; row < this.state.boardSizeH; row++) {
 			for (let col = 0; col < this.state.boardSizeX; col++) {
 				const blockData = this.state.board[row][col]
@@ -309,7 +307,6 @@ class GameSkill {
 		let blocks = []
 		let blockId2 = null
 
-		// 查找所有麋鹿方块并处理
 		for (let row = 0; row < this.state.boardSizeH; row++) {
 			for (let col = 0; col < this.state.boardSizeX; col++) {
 				const blockData = this.state.board[row][col]
@@ -346,12 +343,78 @@ class GameSkill {
 		this.logic.processGameEffects()
 	}
 
+	// 斑马技能：延长自身的长度
 	async handleZebraSkill() {
-		// 消耗技能点
-		if (this.state.skill.skillPoint < 1) {
-			this.renderer.showMessage({ message: '技能点不足！' })
-			return
+		let blocks = []
+
+		// 查找所有斑马方块并处理
+		for (let row = 0; row < this.state.boardSizeH; row++) {
+			for (let col = 0; col < this.state.boardSizeX; col++) {
+				const blockData = this.state.board[row][col]
+				if (blockData && blockData.startCol === col && blockData.animal === 'zebra') {
+					const currentBlockGroup = {
+						row,
+						startCol: blockData.startCol,
+						length: blockData.length
+					}
+					const maxLeft = this.calculateMaxLeftMove(currentBlockGroup)
+					const maxRight = this.calculateMaxRightMove(currentBlockGroup)
+
+					const endLength = maxLeft + blockData.length + maxRight
+					const endCol = col - maxLeft
+
+					blocks.push({
+						blockId: blockData.id,
+						startLength: blockData.length,
+						endLength,
+						startRow: row,
+						startCol: col,
+						endCol,
+						animal: blockData.animal
+					})
+
+					for (let c = endCol; c < endCol + endLength; c++) {
+						this.state.board[row][c] = {
+							...blockData,
+							startCol: endCol,
+							length: endLength
+						}
+					}
+				}
+			}
 		}
+
+		// 如果没有斑马方块，直接返回
+		if (!blocks.length) return
+
+		await this.renderer.animateBlock(blocks, 'skill')
+		await this.renderer.animateBlock(blocks, 'zebra')
+		await this.state.sleep(500)
+		this.logic.processGameEffects()
+	}
+
+	calculateMaxLeftMove(blockGroup) {
+		let maxLeft = blockGroup.startCol
+		for (let col = blockGroup.startCol - 1; col >= 0; col--) {
+			if (this.state.board[blockGroup.row][col] === null) {
+				maxLeft--
+			} else {
+				break
+			}
+		}
+		return blockGroup.startCol - maxLeft
+	}
+
+	calculateMaxRightMove(blockGroup) {
+		let maxRight = blockGroup.startCol + blockGroup.length - 1
+		for (let col = maxRight + 1; col < this.state.boardSizeX; col++) {
+			if (this.state.board[blockGroup.row][col] === null) {
+				maxRight++
+			} else {
+				break
+			}
+		}
+		return maxRight - (blockGroup.startCol + blockGroup.length - 1)
 	}
 
 	async handleOstrichSkill() {

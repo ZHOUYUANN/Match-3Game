@@ -272,9 +272,7 @@ class GameState {
 	}
 
 	animate({
-		begin,
-		end,
-		keyframes,
+		properties,
 		duration = this.options.duration,
 		cubicBezier = this.options.cubicBezier,
 		onUpdate,
@@ -284,17 +282,27 @@ class GameState {
 		return new Promise((resolve) => {
 			// --- 兼容性处理 ---
 			// 如果传入了 begin 和 change，则动态生成 keyframes
-			if (begin !== undefined && end !== undefined && !keyframes) {
-				keyframes = [
-					{ offset: 0, value: begin },
-					{ offset: 1, value: end }
-				]
-			}
-			// 如果没有有效的关键帧，则报错
-			if (!keyframes || keyframes.length < 2) {
-				console.error('关键帧最短需要两个或更多')
+			if (!properties || typeof properties !== 'object' || Object.keys(properties).length === 0) {
+				console.error('动画配置中必须包含 properties 对象')
 				resolve(false)
 				return
+			}
+
+			// --- 内部逻辑优化 ---
+			// 预处理，将 begin/end 转换为统一的 keyframes 结构，便于后续计算
+			const normalizedProperties = {}
+			for (const propName in properties) {
+				const propConfig = properties[propName]
+				if (propConfig.keyframes) {
+					normalizedProperties[propName] = propConfig.keyframes
+				} else if (propConfig.begin !== undefined && propConfig.end !== undefined) {
+					normalizedProperties[propName] = [
+						{ offset: 0, value: propConfig.begin },
+						{ offset: 1, value: propConfig.end }
+					]
+				} else {
+					console.warn(`属性 "${propName}" 的配置不正确，已跳过。请提供 begin/end 或 keyframes。`)
+				}
 			}
 
 			const startTime = performance.now()
@@ -303,10 +311,15 @@ class GameState {
 				const elapsed = currentTime - startTime
 				const totalProgress = Math.min(elapsed / duration, 1)
 
-				// 使用新的核心计算函数
-				const currentValue = this.getValueFromKeyframes(totalProgress, keyframes, cubicBezier)
+				// 在每一帧，计算所有属性的当前值
+				const currentValues = {}
+				for (const propName in normalizedProperties) {
+					const keyframes = normalizedProperties[propName]
+					currentValues[propName] = this.getValueFromKeyframes(totalProgress, keyframes, cubicBezier)
+				}
 
-				onUpdate && onUpdate(currentValue)
+				// 将包含所有值的对象传给 onUpdate
+				onUpdate && onUpdate(currentValues)
 
 				if (totalProgress < 1) {
 					requestAnimationFrame(frame)

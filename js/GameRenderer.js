@@ -106,7 +106,7 @@ class GameRenderer {
 			const blockData = newRow[col]
 			if (blockData !== null && blockData.startCol === col) {
 				const block = this.createBlockElement(row, col, blockData, `marker`)
-				const block2 = this.createBlockElement(row2, col, blockData, `block ${blockData.animal}`)
+				const block2 = this.createBlockElement(row2, col, blockData, `block`)
 				fragment.appendChild(block)
 				fragment2.appendChild(block2)
 			}
@@ -217,16 +217,20 @@ class GameRenderer {
 	updateFreezeSkill() {
 		if (this.state.freezeMovesLeft > 0) {
 			this.state.animate({
-				keyframes: [
-					{ offset: 0, value: 1 },
-					{ offset: 0.5, value: 0.65 },
-					{ offset: 0.7, value: 1.2 },
-					{ offset: 1, value: 1 }
-				],
+				properties: {
+					transform: {
+						keyframes: [
+							{ offset: 0, value: 1 },
+							{ offset: 0.5, value: 0.65 },
+							{ offset: 0.7, value: 1.2 },
+							{ offset: 1, value: 1 }
+						]
+					}
+				},
 				duration: 300,
 				cubicBezier: [0.84, 0.0, 0.0, 1],
-				onUpdate: (value) => {
-					this.gameBubbleElement.style.transform = `scale(${value})`
+				onUpdate: ({ transform }) => {
+					this.gameBubbleElement.style.transform = `scale(${transform})`
 				}
 			})
 		}
@@ -282,11 +286,15 @@ class GameRenderer {
 				if (type === 'falling' || type === 'rising') {
 					animates.push(
 						this.state.animate({
-							begin: oldTop,
-							end: newTop,
+							properties: {
+								y: {
+									begin: oldTop,
+									end: newTop
+								}
+							},
 							duration: type === 'rising' ? 300 : 120,
-							onUpdate: (value) => {
-								blockDom.style.transform = `translate(${newLeft}px, ${value}px) scaleX(${scaleX})`
+							onUpdate: ({ y }) => {
+								blockDom.style.transform = `translate(${newLeft}px, ${y}px) scaleX(${scaleX})`
 							},
 							onEnd: () => {
 								blockDom.dataset.row = block.endRow
@@ -298,10 +306,14 @@ class GameRenderer {
 				if (type === 'move') {
 					animates.push(
 						this.state.animate({
-							begin: oldLeft,
-							end: newLeft,
-							onUpdate: (value) => {
-								blockDom.style.transform = `translate(${value}px, ${newTop}px) scaleX(${scaleX})`
+							properties: {
+								x: {
+									begin: oldLeft,
+									end: newLeft
+								}
+							},
+							onUpdate: ({ x }) => {
+								blockDom.style.transform = `translate(${x}px, ${newTop}px) scaleX(${scaleX})`
 							},
 							onEnd: () => {
 								blockDom.dataset.col = block.endCol
@@ -316,18 +328,29 @@ class GameRenderer {
 
 					animates.push(
 						this.state.animate({
+							properties: {
+								width: {
+									begin: oldWidth,
+									end: newWidth
+								},
+								x: {
+									begin: oldLeft,
+									end: newLeft
+								}
+							},
 							begin: oldWidth,
 							end: newWidth,
 							duration: 300,
 							cubicBezier: [0.84, 0.0, 0.0, 1],
-							onUpdate: (value) => {
-								blockDom.style.width = `${value}px`
+							onUpdate: ({ width, x }) => {
+								blockDom.style.width = `${width}px`
 								if (blockDom.dataset.direction === 'right') {
-									blockDom.style.transform = `translate(${oldLeft + oldWidth - value}px, ${oldTop}px) scaleX(-1)`
+									blockDom.style.transform = `translate(${x}px, ${oldTop}px) scaleX(-1)`
 								}
 							},
 							onEnd: () => {
 								blockDom.dataset.length = block.endLength
+								blockDom.dataset.col = block.endCol
 							}
 						})
 					)
@@ -339,6 +362,12 @@ class GameRenderer {
 
 					animates.push(
 						this.state.animate({
+							properties: {
+								y: {
+									begin: 0,
+									end: starY
+								}
+							},
 							begin: 0,
 							end: starY,
 							duration: 1000,
@@ -347,8 +376,8 @@ class GameRenderer {
 								starDom.style.visibility = 'visible'
 								starDom.style.opacity = 1
 							},
-							onUpdate: (value) => {
-								starDom.style.transform = `translate(${starX * (value / starY)}px, ${value}px)`
+							onUpdate: ({ x, y }) => {
+								starDom.style.transform = `translate(${starX * (y / starY)}px, ${y}px)`
 							},
 							onEnd: () => {
 								starDom.remove()
@@ -371,14 +400,18 @@ class GameRenderer {
 
 					animates.push(
 						this.state.animate({
-							begin: oldWidth,
-							end: newWidth,
+							properties: {
+								width: {
+									begin: oldWidth,
+									end: newWidth
+								}
+							},
 							duration: 300,
 							cubicBezier: [0.84, 0.0, 0.0, 1],
-							onUpdate: (value) => {
-								const currentTranslate = initialCenter - value / 2
+							onUpdate: ({ width }) => {
+								const currentTranslate = initialCenter - width / 2
 
-								blockDom.style.width = `${value}px`
+								blockDom.style.width = `${width}px`
 								blockDom.style.transform = `translate(${currentTranslate}px, ${oldTop}px) scaleX(1)`
 							},
 							onEnd: () => {
@@ -398,21 +431,25 @@ class GameRenderer {
 
 					animates.push(
 						this.state.animate({
-							keyframes: [
-								{ offset: 0, value: 0 },
-								{ offset: 0.2, value: 1.4 },
-								{ offset: 0.4, value: 1.2 },
-								{ offset: 0.6, value: 1.6 },
-								{ offset: 0.8, value: 1.5 },
-								{ offset: 1, value: 1.8 }
-							],
+							properties: {
+								scaleX: {
+									keyframes: [
+										{ offset: 0, value: 0 },
+										{ offset: 0.2, value: 1.4 },
+										{ offset: 0.4, value: 1.2 },
+										{ offset: 0.6, value: 1.6 },
+										{ offset: 0.8, value: 1.5 },
+										{ offset: 1, value: 1.8 }
+									]
+								}
+							},
 							duration: 400,
 							cubicBezier: [0.175, 0.885, 0.32, 1.275],
 							onBefore: () => {
 								blockDom.style.zIndex = 599
 							},
-							onUpdate: (value) => {
-								blockDom.style.transform = `translate(${oldLeft}px, ${oldTop}px) scaleX(${value})`
+							onUpdate: ({ scaleX }) => {
+								blockDom.style.transform = `translate(${oldLeft}px, ${oldTop}px) scaleX(${scaleX})`
 							},
 							onEnd: () => {
 								blockDom.style.zIndex = 399
@@ -425,6 +462,36 @@ class GameRenderer {
 								clonedElement.dataset.blockId = block.blockId2
 								clonedElement.style.transform = `translate(${newLeft}px, ${oldTop}px) scaleX(1)`
 								blockDom.insertAdjacentElement('afterend', clonedElement)
+							}
+						})
+					)
+				}
+				// 斑马技能
+				if (type === 'zebra') {
+					const oldWidth = block.startLength * cellSize + (block.startLength - 1) * gap
+					const newWidth = block.endLength * cellSize + (block.endLength - 1) * gap
+
+					animates.push(
+						this.state.animate({
+							properties: {
+								width: {
+									begin: oldWidth,
+									end: newWidth
+								},
+								x: {
+									begin: oldLeft,
+									end: newLeft
+								}
+							},
+							duration: 300,
+							cubicBezier: [0.84, 0.0, 0.0, 1],
+							onUpdate: ({ width, x }) => {
+								blockDom.style.width = `${width}px`
+								blockDom.style.transform = `translate(${x}px, ${oldTop}px) scaleX(1)`
+							},
+							onEnd: () => {
+								blockDom.dataset.length = block.endLength
+								blockDom.dataset.col = block.endCol
 							}
 						})
 					)
@@ -463,8 +530,16 @@ class GameRenderer {
 		const direction = firstEndState.startCol < block.startCol ? 'left' : 'right'
 
 		await this.state.animate({
-			begin: oldWidth,
-			end: newWidth,
+			properties: {
+				width: {
+					begin: oldWidth,
+					end: newWidth
+				},
+				x: {
+					begin: oldLeft,
+					end: firstEndState.startCol * (cellSize + gap)
+				}
+			},
 			duration: 600,
 			cubicBezier: [0.84, 0.0, 0.0, 1],
 			onBefore: () => {
@@ -479,11 +554,11 @@ class GameRenderer {
 					eatenBlockDom.remove()
 				})
 			},
-			onUpdate: (value) => {
-				blockDom.style.width = `${value}px`
+			onUpdate: ({ width, x }) => {
+				blockDom.style.width = `${width}px`
 				blockDom.style.transform = `translate(${oldLeft}px, ${oldTop}px) scaleX(-1)`
 				if (direction === 'left') {
-					blockDom.style.transform = `translate(${oldLeft + oldWidth - value}px, ${oldTop}px) scaleX(1)`
+					blockDom.style.transform = `translate(${x}px, ${oldTop}px) scaleX(1)`
 				}
 			},
 			onEnd: () => {
@@ -509,6 +584,16 @@ class GameRenderer {
 			const newWidth2 = length * cellSize + (length - 1) * gap
 
 			await this.state.animate({
+				properties: {
+					width: {
+						begin: newWidth,
+						end: newWidth2
+					},
+					x: {
+						begin: firstEndState.startCol * (cellSize + gap),
+						end: startCol * (cellSize + gap)
+					}
+				},
 				begin: newWidth,
 				end: newWidth2,
 				duration: 600,
@@ -524,12 +609,12 @@ class GameRenderer {
 						eatenBlockDom.remove()
 					})
 				},
-				onUpdate: (value) => {
-					blockDom.style.width = `${value}px`
+				onUpdate: ({ width, x }) => {
+					blockDom.style.width = `${width}px`
 					blockDom.style.transform = `translate(0, ${oldTop}px) scaleX(-1)`
 					// 掉头
 					if (direction !== 'left') {
-						blockDom.style.transform = `translate(${oldLeft + newWidth - value}px, ${oldTop}px) scaleX(1)`
+						blockDom.style.transform = `translate(${x}px, ${oldTop}px) scaleX(1)`
 					}
 				},
 				onEnd: () => {
@@ -557,6 +642,12 @@ class GameRenderer {
 		blockDom.parentNode.insertBefore(numDom, blockDom)
 		// 使用 await 等待每个动画完成，再执行下一个
 		await this.state.animate({
+			properties: {
+				y: {
+					begin: 0,
+					end: 20
+				}
+			},
 			begin: 0,
 			end: 18,
 			duration: 600,
@@ -564,35 +655,43 @@ class GameRenderer {
 			onBefore: () => {
 				numDom.style.visibility = 'visible'
 			},
-			onUpdate: (value) => {
-				numDom.style.transform = `translate(${numX}px, ${numY - value}px)`
+			onUpdate: ({ y }) => {
+				numDom.style.transform = `translate(${numX}px, ${numY - y}px)`
 			},
 			onEnd: () => {
 				numDom.remove()
 			}
 		})
 		await this.state.animate({
-			keyframes: [
-				{ offset: 0, value: 0 },
-				{ offset: 0.2, value: 3 },
-				{ offset: 0.4, value: -3 },
-				{ offset: 0.6, value: 4 },
-				{ offset: 0.8, value: -5 },
-				{ offset: 1, value: 0 }
-			],
+			properties: {
+				left: {
+					keyframes: [
+						{ offset: 0, value: 0 },
+						{ offset: 0.2, value: 3 },
+						{ offset: 0.4, value: -3 },
+						{ offset: 0.6, value: 4 },
+						{ offset: 0.8, value: -5 },
+						{ offset: 1, value: 0 }
+					]
+				}
+			},
 			duration: 300,
 			cubicBezier: [0.175, 0.885, 0.32, 1.275],
-			onUpdate: (value) => {
-				blockDom.style.left = `${value}px`
+			onUpdate: ({ left }) => {
+				blockDom.style.left = `${left}px`
 			}
 		})
 		await this.state.animate({
-			begin: 1,
-			end: 0,
+			properties: {
+				opacity: {
+					begin: 1,
+					end: 0
+				}
+			},
 			duration: 300,
 			cubicBezier: [0.04, 0.11, 0.6, 0.86],
-			onUpdate: (value) => {
-				blockDom.style.opacity = value
+			onUpdate: ({ opacity }) => {
+				blockDom.style.opacity = opacity
 			},
 			onEnd: () => {
 				blockDom.remove()
@@ -600,15 +699,19 @@ class GameRenderer {
 		})
 		// 星星飞出动画
 		this.state.animate({
-			begin: starY,
-			end: 0,
+			properties: {
+				y: {
+					begin: starY,
+					end: 0
+				}
+			},
 			duration: 500,
 			cubicBezier: [0.04, 0.11, 0.6, 0.86],
 			onBefore: () => {
 				starDom.style.visibility = 'visible'
 			},
-			onUpdate: (value) => {
-				starDom.style.transform = `translate(${starX * (value / starY)}px, ${value}px)`
+			onUpdate: ({ y }) => {
+				starDom.style.transform = `translate(${starX * (y / starY)}px, ${y}px)`
 			},
 			onEnd: () => {
 				starDom.remove()

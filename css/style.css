@@ -853,22 +853,22 @@ h1 {
 	cursor: grabbing;
 }
 
-.block.ostrich {
+.block[data-animal='ostrich'] {
 	background: url('../img/tn.gif') center no-repeat;
 	background-size: auto 100%;
 }
 
-.block.zebra {
+.block[data-animal='zebra'] {
 	border-style: solid;
-	border-width: 0 31.7812px;
-	border-image: url('../img/bm.gif') 0 200;
-	-webkit-border-image: url('../img/bm.gif') 0 200;
-	-moz-border-image: url('../img/bm.gif') 0 200;
+	border-width: 31.7812px 32.7812px 0;
+	border-image: url('../img/bm-2.gif') 200 200 repeat;
+	-webkit-border-image: url('../img/bm-2.gif') 200 200 repeat;
+	-moz-border-image: url('../img/bm-2.gif') 200 200 repeat;
 	background: none;
 	box-sizing: border-box;
 }
 
-.block.deer {
+.block[data-animal='deer'] {
 	border-style: solid;
 	border-width: 0 31.7812px;
 	border-image: url('../img/ml.gif') 0 200;
@@ -878,13 +878,13 @@ h1 {
 	box-sizing: border-box;
 }
 
-.block.deer[data-length='1'] {
+.block[data-animal='deer'][data-length='1'] {
 	background: url('../img/ml2.gif') left no-repeat;
 	background-size: auto 100%;
 	border: none;
 }
 
-.block.elephant {
+.block[data-animal='elephant'] {
 	border-style: solid;
 	border-width: 0 31.7812px;
 	border-image: url('../img/dx.gif') 0 200;
@@ -894,13 +894,13 @@ h1 {
 	box-sizing: border-box;
 }
 
-.block.elephant[data-length='1'] {
+.block[data-animal='elephant'][data-length='1'] {
 	background: url('../img/dx2.gif') left no-repeat;
 	background-size: auto 100%;
 	border: none;
 }
 
-.block.lion {
+.block[data-animal='lion'] {
 	border-style: solid;
 	border-width: 0 31.7812px;
 	border-image: url('../img/sz.gif') 0 200;
@@ -910,12 +910,17 @@ h1 {
 	box-sizing: border-box;
 }
 
-.block.bear {
-	background: url('../img/bjx.gif') left no-repeat;
-	background-size: auto 100%;
+.block[data-animal='bear'] {
+	border-style: solid;
+	border-width: 0 31.7812px;
+	border-image: url('../img/bjx.gif') 0 200;
+	-webkit-border-image: url('../img/bjx.gif') 0 200;
+	-moz-border-image: url('../img/bjx.gif') 0 200;
+	background: none;
+	box-sizing: border-box;
 }
 
-.block.buffalo {
+.block[data-animal='buffalo'] {
 	border-style: solid;
 	border-width: 0 31.7812px;
 	border-image: url('../img/yn.gif') 0 200;
@@ -926,7 +931,7 @@ h1 {
 	z-index: 199;
 }
 
-.block.buffalo[data-length='1'] {
+.block[data-animal='buffalo'][data-length='1'] {
 	background: url('../img/yn2.gif') left no-repeat;
 	background-size: auto 100%;
 	border: none;
