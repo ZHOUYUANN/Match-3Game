@@ -4,7 +4,8 @@ class Match3Game {
 		this.soundManager = new SoundManager(this.state)
 		this.renderer = new GameRenderer(this.state, this.soundManager)
 		this.logic = new GameLogic(this.state, this.renderer, this.soundManager)
-		this.controller = new GameController(this.state, this.renderer, this.logic, this.soundManager)
+		this.skillManager = new GameSkill(this.state, this.renderer, this.logic)
+		this.controller = new GameController(this.state, this.renderer, this.logic, this.soundManager, this.skillManager)
 
 		// 设置默认音量
 		this.soundManager.setVolume(0.7)

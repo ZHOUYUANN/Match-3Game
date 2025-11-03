@@ -368,8 +368,6 @@ class GameRenderer {
 									end: starY
 								}
 							},
-							begin: 0,
-							end: starY,
 							duration: 1000,
 							cubicBezier: [0.84, 0.0, 0.0, 1],
 							onBefore: () => {
@@ -498,9 +496,6 @@ class GameRenderer {
 				}
 				// 消除动画
 				if (type === 'eliminating') {
-					blockDom.dataset.value = block.comboMultiplier
-					blockDom.dataset.length = block.length
-
 					animates.push(this.eliminatingAnimations(blockDom, block, oldLeft, oldTop))
 				}
 			})
@@ -594,8 +589,6 @@ class GameRenderer {
 						end: startCol * (cellSize + gap)
 					}
 				},
-				begin: newWidth,
-				end: newWidth2,
 				duration: 600,
 				cubicBezier: [0.84, 0.0, 0.0, 1],
 				onBefore: () => {
@@ -648,8 +641,6 @@ class GameRenderer {
 					end: 20
 				}
 			},
-			begin: 0,
-			end: 18,
 			duration: 600,
 			cubicBezier: [0.635, 0.005, 0, 0.995],
 			onBefore: () => {

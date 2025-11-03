@@ -1,12 +1,10 @@
 class GameController {
-	constructor(gameState, gameRenderer, gameLogic, gameSound) {
+	constructor(gameState, gameRenderer, gameLogic, gameSound, skillManager) {
 		this.state = gameState
 		this.renderer = gameRenderer
 		this.logic = gameLogic
 		this.soundManager = gameSound
-
-		// 技能管理器
-		this.skillManager = new GameSkill(gameState, gameRenderer, gameLogic)
+		this.skillManager = skillManager
 
 		this.touch = false
 		this.animal = null
@@ -84,7 +82,6 @@ class GameController {
 			this.state.skill.threshold = newThreshold
 
 			this.skillManager.activateSkill(blockData)
-			this.renderer.updateScore()
 
 			return
 		}

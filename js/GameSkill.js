@@ -25,7 +25,11 @@ class GameSkill {
 
 		this.state.isAnimating = true
 		await skillHandler()
+		await this.state.sleep(500)
+		await this.logic.processGameEffects()
+		this.state.currentCombo = 0
 		this.state.isAnimating = false
+		this.renderer.updateScore()
 	}
 
 	// 北极熊技能：进入冰冻模式，所有野牛长度变为1，直到北极熊方块用完
@@ -91,8 +95,6 @@ class GameSkill {
 
 		await this.renderer.animateBlock(blocks, 'skill')
 		await this.renderer.animateBlock(blocks2, 'buffalo')
-		await this.state.sleep(500)
-		this.logic.processGameEffects()
 	}
 
 	// --------------------------- 狮子技能 --------------------------
@@ -131,9 +133,6 @@ class GameSkill {
 		for (let block of blocks) {
 			await this.renderer.animateBlock([block], 'lion')
 		}
-
-		await this.state.sleep(500)
-		this.logic.processGameEffects()
 	}
 
 	// 获取初始移动方向
@@ -298,8 +297,6 @@ class GameSkill {
 
 		await this.renderer.animateBlock(blocks, 'skill')
 		await this.renderer.animateBlock(blocks, 'elephant')
-		await this.state.sleep(500)
-		this.logic.processGameEffects()
 	}
 
 	// 麋鹿技能：分裂成一格
@@ -339,8 +336,6 @@ class GameSkill {
 
 		await this.renderer.animateBlock(blocks, 'skill')
 		await this.renderer.animateBlock(blocks, 'deer')
-		await this.state.sleep(500)
-		this.logic.processGameEffects()
 	}
 
 	// 斑马技能：延长自身的长度
@@ -389,8 +384,6 @@ class GameSkill {
 
 		await this.renderer.animateBlock(blocks, 'skill')
 		await this.renderer.animateBlock(blocks, 'zebra')
-		await this.state.sleep(500)
-		this.logic.processGameEffects()
 	}
 
 	calculateMaxLeftMove(blockGroup) {
