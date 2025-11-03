@@ -79,6 +79,7 @@ class GameSkill {
 							endLength: 1,
 							startRow: row,
 							startCol: col,
+							endCol: col,
 							animal: blockData.animal
 						})
 						this.state.board[row][col] = {

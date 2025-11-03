@@ -716,7 +716,7 @@ class GameRenderer {
 		const offset = 10
 
 		const dom = document.createElement('div')
-		dom.classList.add('toast', `toast-${type}`)
+		dom.classList.add('toast')
 		dom.innerText = message
 
 		body.insertBefore(dom, body.firstChild)
@@ -724,6 +724,7 @@ class GameRenderer {
 		requestAnimationFrame(() => {
 			requestAnimationFrame(() => {
 				dom.classList.add('toast-active')
+				dom.classList.add(`toast-${type}`)
 			})
 		})
 
