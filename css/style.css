@@ -861,9 +861,9 @@ h1 {
 .block[data-animal='zebra'] {
 	border-style: solid;
 	border-width: var(--cell-size) calc(var(--cell-size) + 1px) 0;
-	border-image: url('../img/bm-2.gif') 200 200 repeat;
-	-webkit-border-image: url('../img/bm-2.gif') 200 200 repeat;
-	-moz-border-image: url('../img/bm-2.gif') 200 200 repeat;
+	border-image: url('../img/bm.gif') 200 200 repeat;
+	-webkit-border-image: url('../img/bm.gif') 200 200 repeat;
+	-moz-border-image: url('../img/bm.gif') 200 200 repeat;
 	background: none;
 	box-sizing: border-box;
 }
