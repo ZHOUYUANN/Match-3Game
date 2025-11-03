@@ -91,6 +91,8 @@ class GameRenderer {
 		const rect = cell.getBoundingClientRect()
 
 		this.state.cellSize = rect.width
+		this.gameWrapper.style.aspectRatio = this.state.boardSizeX / this.state.boardSizeH
+		this.gameWrapper.style.setProperty('--cell-size', `${rect.width}px`)
 	}
 
 	renderPreview() {
