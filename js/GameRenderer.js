@@ -716,19 +716,24 @@ class GameRenderer {
 		const offset = 10
 
 		const dom = document.createElement('div')
-		dom.classList.add('toast', 'toast-active', `toast-${type}`)
+		dom.classList.add('toast', `toast-${type}`)
 		dom.innerText = message
 
 		body.insertBefore(dom, body.firstChild)
 
-		const toasts = Array.from(document.querySelectorAll('.toast'))
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => {
+				dom.classList.add('toast-active')
+			})
+		})
 
+		const toasts = Array.from(document.querySelectorAll('.toast'))
 		setTimeout(() => {
 			toasts.forEach((item) => {
 				item.style.top = `${top}px`
 				top += item.offsetHeight + offset
 			})
-		}, 200)
+		}, 50)
 
 		await this.state.sleep(timer)
 		dom.classList.remove('toast-active')

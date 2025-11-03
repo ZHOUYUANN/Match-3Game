@@ -265,11 +265,14 @@ class GameController {
 	}
 
 	handleRestart() {
-		this.logic.initializeGame()
+		this.state.reset()
 		this.renderer.render()
+		this.logic.initializeGame()
 	}
 
-	handleHint() {}
+	handleHint() {
+		this.renderer.showMessage({ message: '正在开发中！' })
+	}
 
 	calculateMaxLeftMove(blockGroup) {
 		let maxLeft = blockGroup.startCol
