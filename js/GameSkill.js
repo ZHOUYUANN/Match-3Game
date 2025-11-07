@@ -6,7 +6,7 @@ class GameSkill {
 
 		// 技能映射表
 		this.skillMap = {
-			// ostrich: this.handleOstrichSkill.bind(this),
+			ostrich: this.handleOstrichSkill.bind(this),
 			zebra: this.handleZebraSkill.bind(this),
 			deer: this.handleDeerSkill.bind(this),
 			elephant: this.handleElephantSkill.bind(this),
@@ -411,12 +411,140 @@ class GameSkill {
 		return maxRight - (blockGroup.startCol + blockGroup.length - 1)
 	}
 
+	// 鸵鸟技能：往有空隙的地方移动下蛋，碰到间隙就下落，继续移动，直到没有空隙为止
 	async handleOstrichSkill() {
-		// 消耗技能点
-		if (this.state.skill.skillPoint < 1) {
-			this.renderer.showMessage({ message: '技能点不足！' })
-			return
+		let blocks = []
+
+		for (let row = 0; row < this.state.boardSizeH; row++) {
+			for (let col = 0; col < this.state.boardSizeX; col++) {
+				const blockData = this.state.board[row][col]
+				if (blockData && blockData.animal === 'ostrich') {
+					blocks.push({
+						blockId: blockData.id,
+						startRow: row,
+						startCol: col,
+						length: blockData.length
+					})
+				}
+			}
 		}
+
+		for (let block of blocks) {
+			let moved
+			const arr = []
+			do {
+				moved = false
+				// 先尝试下落
+				const canFall = this.canOstrichFall(block)
+				if (canFall) {
+					const downs = this.moveOstrichDown(block)
+					arr.push(...downs)
+					moved = true
+					continue
+				}
+				// 然后尝试左右移动
+				const canMove = this.canOstrichMove(block)
+				if (canMove.direction && canMove.distance > 0) {
+					const moves = this.moveOstrichHorizontally(block, canMove.direction, canMove.distance)
+					arr.push(...moves)
+					moved = true
+				}
+			} while (moved)
+			console.log(arr)
+			await this.renderer.animateBlock([blocks], 'skill')
+		}
+	}
+
+	canOstrichFall(block) {
+		const nextRow = block.startRow + 1
+		if (nextRow >= this.state.boardSizeH) return false
+		if (this.state.board[nextRow][block.startCol] !== null) {
+			return false
+		}
+		return true
+	}
+
+	moveOstrichDown(block) {
+		const result = []
+		const currentRow = block.startRow
+		const endRow = currentRow + 1
+
+		// 更新状态
+		result.push({
+			blockId: block.blockId,
+			startRow: currentRow,
+			endRow,
+			startCol: block.startCol,
+			endCol: block.startCol,
+			length: block.length
+		})
+		this.state.board[endRow][block.startCol] = this.state.board[currentRow][block.startCol]
+		this.state.board[currentRow][block.startCol] = null
+		block.startRow = endRow
+
+		return result
+	}
+
+	canOstrichMove(block) {
+		const maxRightDistance = this._getDistanceInDirection(block, 1)
+		const maxLeftDistance = this._getDistanceInDirection(block, -1)
+
+		if (maxRightDistance > 0) {
+			return { direction: 'right', distance: maxRightDistance }
+		} else if (maxLeftDistance > 0) {
+			return { direction: 'left', distance: maxLeftDistance }
+		}
+
+		return { direction: null, distance: 0 }
+	}
+
+	_getDistanceInDirection(block, step) {
+		let distance = 0
+		while (true) {
+			const nextCol = block.startCol + step * (distance + 1)
+			if (nextCol < 0 || nextCol >= this.state.boardSizeX) {
+				break
+			}
+			if (this.state.board[block.startRow][nextCol] !== null) {
+				break
+			}
+			if (block.startRow + 1 < this.state.boardSizeH && this.state.board[block.startRow + 1][nextCol] === null) {
+				distance++
+				break
+			}
+			distance++
+		}
+		return distance
+	}
+
+	moveOstrichHorizontally(block, direction, distance) {
+		const result = []
+		const currentRow = block.startRow
+
+		for (let i = 1; i <= distance; i++) {
+			const endCol = direction === 'left' ? block.startCol - 1 : block.startCol + 1
+			const blockId2 = this.state.nextBlockId++
+			result.push({
+				blockId: block.blockId,
+				blockId2,
+				startRow: currentRow,
+				endRow: currentRow,
+				startCol: block.startCol,
+				endCol,
+				length: block.length
+			})
+			this.state.board[currentRow][endCol] = {
+				...this.state.board[currentRow][block.startCol],
+				startCol: endCol
+			}
+			this.state.board[currentRow][block.startCol] = {
+				...this.state.board[currentRow][block.startCol],
+				id: blockId2
+			}
+			block.startCol = endCol
+		}
+
+		return result
 	}
 
 	// 检查是否可以结束冰冻模式
