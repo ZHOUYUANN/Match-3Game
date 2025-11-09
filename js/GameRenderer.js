@@ -496,6 +496,10 @@ class GameRenderer {
 						})
 					)
 				}
+				// 鸵鸟技能
+				if (type === 'ostrich') {
+					animates.push(this.ostrichAnimations(blockDom, block))
+				}
 				// 消除动画
 				if (type === 'eliminating') {
 					animates.push(this.eliminatingAnimations(blockDom, block, oldLeft, oldTop))
@@ -513,6 +517,63 @@ class GameRenderer {
 			this.maxBottom = 20
 			resolve()
 		})
+	}
+
+	async ostrichAnimations(blockDom, block) {
+		const cellSize = this.state.cellSize
+		const gap = this.state.gap
+		for (const step of block.steps) {
+			const oldLeft = step.startCol * (cellSize + gap)
+			const newLeft = step.endCol * (cellSize + gap)
+			const oldTop = step.startRow * (cellSize + gap)
+			const newTop = step.endRow * (cellSize + gap)
+
+			// 有blockId
+			const properties = step.blockId2
+				? {
+						x: {
+							begin: oldLeft,
+							end: newLeft
+						}
+				  }
+				: {
+						y: {
+							begin: oldTop,
+							end: newTop
+						}
+				  }
+			await this.state.animate({
+				properties,
+				duration: 400,
+				cubicBezier: [0, 0, 1, 1],
+				onBefore: () => {},
+				onUpdate: ({ x, y }) => {
+					blockDom.style.transform = `translate(${x ?? oldLeft}px, ${y || oldTop}px) scaleX(1)`
+				},
+				onEnd: () => {
+					if (step.blockId2) {
+						const egg = document.createElement('div')
+						egg.className = 'block'
+						egg.dataset.row = step.startRow
+						egg.dataset.col = step.startCol
+						egg.dataset.animal = 'egg'
+						egg.dataset.length = step.length
+						egg.dataset.blockId = step.blockId2
+
+						egg.style.width = `${cellSize}px`
+						egg.style.height = `${cellSize}px`
+						egg.style.transform = `translate(${oldLeft}px, ${oldTop}px) scaleX(1)`
+
+						blockDom.parentNode.insertBefore(egg, blockDom)
+
+						setTimeout(() => (egg.dataset.animal = 'egg2'), 1000)
+					}
+
+					blockDom.dataset.row = step.endRow
+					blockDom.dataset.col = step.endCol
+				}
+			})
+		}
 	}
 
 	async lionAnimations(blockDom, block, oldLeft, oldTop) {

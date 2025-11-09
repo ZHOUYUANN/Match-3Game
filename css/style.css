@@ -858,6 +858,16 @@ h1 {
 	background-size: auto 100%;
 }
 
+.block[data-animal='egg'] {
+	background: url('../img/egg.gif') center no-repeat;
+	background-size: auto 100%;
+}
+
+.block[data-animal='egg2'] {
+	background: url('../img/egg2.gif') center no-repeat;
+	background-size: auto 100%;
+}
+
 .block[data-animal='zebra'] {
 	border-style: solid;
 	border-width: var(--cell-size) calc(var(--cell-size) + 1px) 0;

@@ -418,7 +418,7 @@ class GameSkill {
 		for (let row = 0; row < this.state.boardSizeH; row++) {
 			for (let col = 0; col < this.state.boardSizeX; col++) {
 				const blockData = this.state.board[row][col]
-				if (blockData && blockData.animal === 'ostrich') {
+				if (blockData && blockData.type !== 'egg' && blockData.animal === 'ostrich') {
 					blocks.push({
 						blockId: blockData.id,
 						startRow: row,
@@ -429,86 +429,64 @@ class GameSkill {
 			}
 		}
 
+		// 如果没有麋鹿方块，直接返回
+		if (!blocks.length) return
+		await this.renderer.animateBlock(blocks, 'skill')
+
 		for (let block of blocks) {
 			let moved
-			const arr = []
+			const ostrichAnimation = {
+				blockId: block.blockId,
+				steps: []
+			}
 			do {
 				moved = false
-				// 先尝试下落
-				const canFall = this.canOstrichFall(block)
-				if (canFall) {
-					const downs = this.moveOstrichDown(block)
-					arr.push(...downs)
+				// 先横向移动
+				const horizontalMove = this.calculateHorizontalMove(block)
+				if (horizontalMove && horizontalMove.distance > 0) {
+					// 执行横向移动，记录动画步骤
+					const steps = this.applyHorizontalMoveWithCloning(block, horizontalMove.direction, horizontalMove.distance)
+					ostrichAnimation.steps.push(...steps)
 					moved = true
-					continue
 				}
-				// 然后尝试左右移动
-				const canMove = this.canOstrichMove(block)
-				if (canMove.direction && canMove.distance > 0) {
-					const moves = this.moveOstrichHorizontally(block, canMove.direction, canMove.distance)
-					arr.push(...moves)
+				// 下落
+				const fallDistance = this.calculateFullFallDistance(block)
+				if (fallDistance > 0) {
+					const step = this.applyFullFallAndGenerateStep(block, fallDistance)
+					ostrichAnimation.steps.push(step)
 					moved = true
 				}
 			} while (moved)
-			console.log(arr)
-			await this.renderer.animateBlock([blocks], 'skill')
+
+			if (ostrichAnimation.steps.length) {
+				await this.renderer.animateBlock([ostrichAnimation], 'ostrich')
+			}
 		}
 	}
 
-	canOstrichFall(block) {
-		const nextRow = block.startRow + 1
-		if (nextRow >= this.state.boardSizeH) return false
-		if (this.state.board[nextRow][block.startCol] !== null) {
-			return false
+	calculateHorizontalMove(block) {
+		// 优先向右
+		const rightDistance = this.getMaxDistanceInDirection(block, 'right')
+		if (rightDistance > 0) {
+			return { direction: 'right', distance: rightDistance }
 		}
-		return true
-	}
-
-	moveOstrichDown(block) {
-		const result = []
-		const currentRow = block.startRow
-		const endRow = currentRow + 1
-
-		// 更新状态
-		result.push({
-			blockId: block.blockId,
-			startRow: currentRow,
-			endRow,
-			startCol: block.startCol,
-			endCol: block.startCol,
-			length: block.length
-		})
-		this.state.board[endRow][block.startCol] = this.state.board[currentRow][block.startCol]
-		this.state.board[currentRow][block.startCol] = null
-		block.startRow = endRow
-
-		return result
-	}
-
-	canOstrichMove(block) {
-		const maxRightDistance = this._getDistanceInDirection(block, 1)
-		const maxLeftDistance = this._getDistanceInDirection(block, -1)
-
-		if (maxRightDistance > 0) {
-			return { direction: 'right', distance: maxRightDistance }
-		} else if (maxLeftDistance > 0) {
-			return { direction: 'left', distance: maxLeftDistance }
+		// 向右不可行，再尝试向左
+		const leftDistance = this.getMaxDistanceInDirection(block, 'left')
+		if (leftDistance > 0) {
+			return { direction: 'left', distance: leftDistance }
 		}
-
-		return { direction: null, distance: 0 }
+		return null
 	}
 
-	_getDistanceInDirection(block, step) {
+	getMaxDistanceInDirection(block, direction) {
+		const step = direction === 'right' ? 1 : -1
 		let distance = 0
 		while (true) {
+			const nextRow = block.startRow + 1
 			const nextCol = block.startCol + step * (distance + 1)
-			if (nextCol < 0 || nextCol >= this.state.boardSizeX) {
-				break
-			}
-			if (this.state.board[block.startRow][nextCol] !== null) {
-				break
-			}
-			if (block.startRow + 1 < this.state.boardSizeH && this.state.board[block.startRow + 1][nextCol] === null) {
+			if (nextCol < 0 || nextCol >= this.state.boardSizeX) break
+			if (this.state.board[block.startRow][nextCol] !== null) break
+			if (nextRow >= this.state.boardSizeH || this.state.board[nextRow][nextCol] === null) {
 				distance++
 				break
 			}
@@ -517,34 +495,65 @@ class GameSkill {
 		return distance
 	}
 
-	moveOstrichHorizontally(block, direction, distance) {
-		const result = []
-		const currentRow = block.startRow
-
-		for (let i = 1; i <= distance; i++) {
-			const endCol = direction === 'left' ? block.startCol - 1 : block.startCol + 1
+	applyHorizontalMoveWithCloning(block, direction, distance) {
+		const steps = []
+		const step = direction === 'right' ? 1 : -1
+		for (let i = 0; i < distance; i++) {
+			const startRow = block.startRow
+			const startCol = block.startCol
+			const endCol = startCol + step
 			const blockId2 = this.state.nextBlockId++
-			result.push({
+			steps.push({
 				blockId: block.blockId,
 				blockId2,
-				startRow: currentRow,
-				endRow: currentRow,
-				startCol: block.startCol,
+				startRow,
+				endRow: startRow,
+				startCol,
 				endCol,
 				length: block.length
 			})
-			this.state.board[currentRow][endCol] = {
-				...this.state.board[currentRow][block.startCol],
-				startCol: endCol
-			}
-			this.state.board[currentRow][block.startCol] = {
-				...this.state.board[currentRow][block.startCol],
+			const originalBlockData = this.state.board[startRow][startCol]
+			this.state.board[startRow][startCol] = {
+				...originalBlockData,
+				type: 'egg',
 				id: blockId2
+			}
+			this.state.board[startRow][endCol] = {
+				...originalBlockData,
+				startCol: endCol
 			}
 			block.startCol = endCol
 		}
+		return steps
+	}
 
-		return result
+	calculateFullFallDistance(block) {
+		let distance = 0
+		while (true) {
+			const nextRow = block.startRow + distance + 1
+			if (nextRow >= this.state.boardSizeH) break // 到达底部
+			if (this.state.board[nextRow][block.startCol] !== null) break // 下方有障碍
+			distance++
+		}
+		return distance
+	}
+
+	applyFullFallAndGenerateStep(block, fallDistance) {
+		const startRow = block.startRow
+		const endRow = startRow + fallDistance
+		const currentCol = block.startCol
+		const step = {
+			blockId: block.blockId,
+			startRow,
+			endRow,
+			startCol: currentCol,
+			endCol: currentCol,
+			length: block.length
+		}
+		this.state.board[endRow][currentCol] = this.state.board[startRow][currentCol]
+		this.state.board[startRow][currentCol] = null
+		block.startRow = endRow
+		return step
 	}
 
 	// 检查是否可以结束冰冻模式
