@@ -1,10 +1,11 @@
 class GameController {
-	constructor(gameState, gameRenderer, gameLogic, gameSound, skillManager) {
+	constructor(gameState, gameRenderer, gameLogic, gameSound, skillManager, gameHistory) {
 		this.state = gameState
 		this.renderer = gameRenderer
 		this.logic = gameLogic
 		this.soundManager = gameSound
 		this.skillManager = skillManager
+		this.history = gameHistory
 
 		this.touch = false
 		this.animal = null
@@ -204,6 +205,12 @@ class GameController {
 				await this.logic.checkLionBlock()
 				await this.logic.addNewRow()
 				await this.logic.processGameEffects()
+
+				// 检测如果初始化游戏时都消除了，继续添加新行
+				if (this.state.board[this.state.boardSizeH - 1].every((cell) => cell === null)) {
+					console.log('全部方块清空了')
+					await this.logic.addNewRow()
+				}
 			}
 			this.renderer.updateScore()
 		}
@@ -213,6 +220,13 @@ class GameController {
 		this.renderer.gameWrapper.classList.remove('game-disabled')
 		this.state.isAnimating = false
 
+		// 保存历史记录
+		this.history.save({
+			state: {
+				...this.state
+			},
+			nextRow: this.renderer.nextRow
+		})
 		this.draggingBlock = null
 		this.dragStartX = null
 		this.dragStartCol = null

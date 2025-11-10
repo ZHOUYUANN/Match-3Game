@@ -24,10 +24,17 @@ class GameRenderer {
 	}
 
 	// 初始渲染
-	render() {
+	render(lastState = null) {
 		this.renderUI()
 		this.renderGrid()
-		this.renderPreview()
+		if (lastState) {
+			this.state.update(lastState.state)
+			this.renderLastState()
+			this.renderPreview(lastState.nextRow)
+			this.updateScore()
+		} else {
+			this.renderPreview()
+		}
 
 		// 设置背景音乐
 		// this.soundManager.play('background', {
@@ -95,22 +102,36 @@ class GameRenderer {
 		this.gameWrapper.style.setProperty('--cell-size', `${rect.width}px`)
 	}
 
-	renderPreview() {
+	renderLastState() {
+		const fragment = document.createDocumentFragment()
+		// 渲染已有的方块
+		for (let row = 0; row < this.state.boardSizeH; row++) {
+			for (let col = 0; col < this.state.boardSizeX; col++) {
+				const blockData = this.state.board[row][col]
+				if (blockData !== null && blockData.startCol === col) {
+					const block = this.createBlockElement(row, col, blockData, `block`)
+					fragment.appendChild(block)
+				}
+			}
+		}
+
+		this.gameBoard.appendChild(fragment)
+	}
+
+	renderPreview(nextRow) {
 		this.gameMarker.innerHTML = ''
 		const fragment = document.createDocumentFragment()
 		const fragment2 = document.createDocumentFragment()
-		const row = 0
-		const row2 = this.state.boardSizeH
-		const newRow = this.state.generateNewRow()
+		const newRow = nextRow || this.state.generateNewRow()
 
 		// 特殊行：包含连续的5个方块
 		for (let col = 0; col < this.state.boardSizeX; col++) {
 			const blockData = newRow[col]
 			if (blockData !== null && blockData.startCol === col) {
-				const block = this.createBlockElement(row, col, blockData, `marker`)
-				const block2 = this.createBlockElement(row2, col, blockData, `block`)
-				fragment.appendChild(block)
-				fragment2.appendChild(block2)
+				const marker = this.createBlockElement(0, col, blockData, `marker`)
+				const block = this.createBlockElement(this.state.boardSizeH, col, blockData, `block`)
+				fragment.appendChild(marker)
+				fragment2.appendChild(block)
 			}
 		}
 

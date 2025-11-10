@@ -482,11 +482,11 @@ class GameSkill {
 		const step = direction === 'right' ? 1 : -1
 		let distance = 0
 		while (true) {
-			const nextRow = block.startRow + 1
-			const nextCol = block.startCol + step * (distance + 1)
-			if (nextCol < 0 || nextCol >= this.state.boardSizeX) break
-			if (this.state.board[block.startRow][nextCol] !== null) break
-			if (nextRow >= this.state.boardSizeH || this.state.board[nextRow][nextCol] === null) {
+			const endRow = block.startRow + 1
+			const endCol = block.startCol + step * (distance + 1)
+			if (endCol < 0 || endCol >= this.state.boardSizeX) break
+			if (this.state.board[block.startRow][endCol] !== null) break
+			if (endRow >= this.state.boardSizeH || this.state.board[endRow][endCol] === null) {
 				distance++
 				break
 			}
@@ -530,9 +530,9 @@ class GameSkill {
 	calculateFullFallDistance(block) {
 		let distance = 0
 		while (true) {
-			const nextRow = block.startRow + distance + 1
-			if (nextRow >= this.state.boardSizeH) break // 到达底部
-			if (this.state.board[nextRow][block.startCol] !== null) break // 下方有障碍
+			const endRow = block.startRow + distance + 1
+			if (endRow >= this.state.boardSizeH) break // 到达底部
+			if (this.state.board[endRow][block.startCol] !== null) break // 下方有障碍
 			distance++
 		}
 		return distance

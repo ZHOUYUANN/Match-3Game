@@ -1,11 +1,34 @@
 class Match3Game {
 	constructor(options = {}) {
+		this.lastState = null
+		this.history = new GameHistory('luszy_match3_game')
+		const historyData = this.history.getHistory()
+		if (historyData && historyData.length > 0) {
+			const userChoice = confirm(
+				'检测到有上一次游戏缓存内容，是否恢复至上次关闭时的状态？\n\n点击“确定”将应用最后一步操作，点击“取消”将开始一个新游戏。'
+			)
+
+			if (userChoice) {
+				const lastState = (this.lastState = historyData[historyData.length - 1])
+				this.history.clearHistory()
+				this.history.save({ ...lastState })
+			} else {
+				this.history.clearHistory()
+			}
+		}
 		this.state = new GameState(options)
 		this.soundManager = new SoundManager(this.state)
 		this.renderer = new GameRenderer(this.state, this.soundManager)
 		this.logic = new GameLogic(this.state, this.renderer, this.soundManager)
 		this.skillManager = new GameSkill(this.state, this.renderer, this.logic)
-		this.controller = new GameController(this.state, this.renderer, this.logic, this.soundManager, this.skillManager)
+		this.controller = new GameController(
+			this.state,
+			this.renderer,
+			this.logic,
+			this.soundManager,
+			this.skillManager,
+			this.history
+		)
 
 		// 设置默认音量
 		this.soundManager.setVolume(0.7)
@@ -50,8 +73,12 @@ class Match3Game {
 			})
 
 			// 所有图片加载完成后初始化你的游戏
-			this.renderer.render()
-			this.logic.initializeGame()
+			if (this.lastState) {
+				this.renderer.render(this.lastState)
+			} else {
+				this.renderer.render()
+				this.logic.initializeGame()
+			}
 			this.controller.setupEventListeners()
 		} catch (error) {
 			console.error('图片预加载失败:', error)

@@ -10,11 +10,12 @@ class GameLogic {
 		await this.addNewRow()
 		await this.addNewRow()
 		// 检测并处理初始状态下的掉落和消除
-		this.processGameEffects()
+		await this.processGameEffects()
 
 		// 检测如果初始化游戏时都消除了，继续添加新行
 		if (this.state.board[this.state.boardSizeH - 1].every((cell) => cell === null)) {
-			await this.addNewRow()
+			console.log('全部方块清空了')
+			this.addNewRow()
 		}
 
 		// 更新回合显示

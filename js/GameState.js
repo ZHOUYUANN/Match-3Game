@@ -11,7 +11,6 @@ class GameState {
 			.fill()
 			.map(() => Array(options.boardSize[0]).fill(null))
 		this.score = 0
-		this.level = 1
 		this.round = 1
 		this.gameOver = false
 		this.nextBlockId = 1
@@ -43,7 +42,6 @@ class GameState {
 			.fill()
 			.map(() => Array(this.boardSizeX).fill(null))
 		this.score = 0
-		this.level = 1
 		this.round = 1
 		this.gameOver = false
 		this.nextBlockId = 1
@@ -53,8 +51,8 @@ class GameState {
 		// 重置技能状态
 		this.skill = {
 			currentPoints: 0,
-			maxPoints: 250,
-			threshold: 100,
+			maxPoints: 2500,
+			threshold: 1000,
 			skillPoint: 0
 		}
 
@@ -64,6 +62,11 @@ class GameState {
 		// 重置野牛生成
 		this.buffaloIndex = 0
 		this.nextBuffaloRound = this.buffaloPattern.length ? this.buffaloPattern[0] : Infinity
+	}
+
+	update(newData) {
+		if (!newData) return
+		Object.assign(this, newData)
 	}
 
 	// 根据权重随机生成方块长度
