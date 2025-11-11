@@ -51,8 +51,8 @@ class GameState {
 		// 重置技能状态
 		this.skill = {
 			currentPoints: 0,
-			maxPoints: 2500,
-			threshold: 1000,
+			maxPoints: 250,
+			threshold: 100,
 			skillPoint: 0
 		}
 

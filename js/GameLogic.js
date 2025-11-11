@@ -41,6 +41,7 @@ class GameLogic {
 				this.state.gameOver = true
 				this.renderer.showMessage({ message: '游戏结束！' })
 				this.history.clearHistory()
+				resolve()
 				return
 			}
 
