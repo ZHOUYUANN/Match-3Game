@@ -19,7 +19,7 @@ class Match3Game {
 		this.state = new GameState(options)
 		this.soundManager = new SoundManager(this.state)
 		this.renderer = new GameRenderer(this.state, this.soundManager)
-		this.logic = new GameLogic(this.state, this.renderer, this.soundManager)
+		this.logic = new GameLogic(this.state, this.renderer, this.soundManager, this.history)
 		this.skillManager = new GameSkill(this.state, this.renderer, this.logic)
 		this.controller = new GameController(
 			this.state,

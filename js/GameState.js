@@ -91,7 +91,7 @@ class GameState {
 		}
 
 		// 计算总几率
-		const totalChance = adjustedChances[1] + adjustedChances[2] + adjustedChances[3] + adjustedChances[4]
+		const totalChance = Object.values(adjustedChances).reduce((sum, chance) => sum + chance, 0)
 
 		// 生成随机数
 		const randomValue = Math.random() * totalChance
@@ -99,16 +99,22 @@ class GameState {
 		// 根据几率选择方块长度
 		let cumulative = 0
 
-		cumulative += chances[1]
-		if (randomValue <= cumulative) return 1
+		for (let length = 1; length <= 4; length++) {
+			cumulative += adjustedChances[length]
+			if (randomValue <= cumulative) {
+				return length
+			}
+		}
+		return 1
+	}
 
-		cumulative += chances[2]
-		if (randomValue <= cumulative) return 2
+	getWeightedRandomGroupCount() {
+		const totalWeight = 100
+		const randomValue = Math.random() * totalWeight
 
-		cumulative += chances[3]
-		if (randomValue <= cumulative) return 3
-
-		return 4
+		if (randomValue < 25) return 2 // 25% 几率生成2组
+		if (randomValue < 65) return 3 // 40% 几率生成3组
+		return 4 // 35% 几率生成4组
 	}
 
 	// 生成新行
@@ -124,44 +130,69 @@ class GameState {
 		if (this.round + 1 === this.nextBuffaloRound) {
 			return this.generateBuffaloRow()
 		}
-		// 默认动物
-		const animals = {
-			1: 'ostrich', // 鸵鸟
-			2: 'zebra,deer', // 斑马，麋鹿
-			3: 'elephant,lion', // 大象，狮子
-			4: 'bear' // 北极熊
-		}
-		// 创建新行数组
-		const newRow = Array(this.boardSizeX).fill(null)
-		// 随机生成方块组个数
-		const groupCount = this.getRandomInt(2, 4)
-		// 生成随机起始位置[0,2]，避免每次都是从第一个开始
-		let usedCells = this.getRandomInt(0, 2)
 
+		const boardSize = this.boardSizeX // 假设为 9
+		const newRow = Array(boardSize).fill(null)
+		const animals = {
+			1: 'ostrich',
+			2: 'zebra,deer',
+			3: 'elephant,lion',
+			4: 'bear'
+		}
+
+		// 根据权重生成方块组
+		const groupCount = this.getWeightedRandomGroupCount()
+		let blocksToPlace = []
 		for (let i = 0; i < groupCount; i++) {
-			if (usedCells >= this.boardSizeX) break
-			// 使用智能几率生成方块长度
-			const weightLength = this.getWeightedRandomLength()
-			// 随机生成方块组的随机长度，最大不超过4格
-			const maxLength = Math.min(4, this.boardSizeX - usedCells)
-			// 随机生成方块组长度，最小为1，最大为maxLength
-			const length = Math.min(weightLength, maxLength)
+			const length = this.getWeightedRandomLength()
 			const animalArray = animals[length].split(',')
 			const animal = animalArray[Math.floor(Math.random() * animalArray.length)]
-			const startCol = usedCells
 
-			// 创建方块组
-			const blockId = this.nextBlockId++
-			for (let j = 0; j < length; j++) {
-				newRow[startCol + j] = {
-					id: blockId,
-					length: length,
-					startCol: startCol,
-					animal
+			blocksToPlace.push({
+				length: length,
+				animal: animal,
+				id: this.nextBlockId++
+			})
+		}
+
+		// 先排序，最长的方块组优先尝试放置
+		blocksToPlace.sort((a, b) => b.length - a.length)
+		// 记录已占用的格子总数
+		let occupiedCells = 0
+
+		// 随机投放每个方块组
+		for (const block of blocksToPlace) {
+			if (occupiedCells + block.length >= boardSize) continue
+			// 寻找所有可用的起始位置
+			const validStartPositions = []
+			for (let i = 0; i <= boardSize - block.length; i++) {
+				let canPlace = true
+				// 检查从 i 开始，长度为 block.length 的区间是否都为空
+				for (let j = 0; j < block.length; j++) {
+					if (newRow[i + j] !== null) {
+						canPlace = false
+						break
+					}
+				}
+				if (canPlace) {
+					validStartPositions.push(i)
 				}
 			}
-			// 生成后续间隔的格子数，随机间隔0-2格
-			usedCells += length + this.getRandomInt(0, 2)
+
+			// 如果找到了有效的位置，随机选一个进行放置
+			if (validStartPositions.length > 0) {
+				const startCol = validStartPositions[Math.floor(Math.random() * validStartPositions.length)]
+				// 创建方块组
+				for (let j = 0; j < block.length; j++) {
+					newRow[startCol + j] = {
+						id: block.id,
+						length: block.length,
+						startCol: startCol,
+						animal: block.animal
+					}
+				}
+				occupiedCells += block.length
+			}
 		}
 
 		return newRow

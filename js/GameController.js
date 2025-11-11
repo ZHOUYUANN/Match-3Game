@@ -279,6 +279,7 @@ class GameController {
 	}
 
 	handleRestart() {
+		this.history.clearHistory()
 		this.state.reset()
 		this.renderer.render()
 		this.logic.initializeGame()

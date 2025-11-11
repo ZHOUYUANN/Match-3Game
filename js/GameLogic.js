@@ -1,8 +1,9 @@
 class GameLogic {
-	constructor(gameState, gameRenderer, gameSound) {
+	constructor(gameState, gameRenderer, gameSound, gameHistory) {
 		this.state = gameState
 		this.renderer = gameRenderer
 		this.soundManager = gameSound
+		this.history = gameHistory
 	}
 
 	// 初始化游戏
@@ -39,6 +40,7 @@ class GameLogic {
 			if (blockDoms.length) {
 				this.state.gameOver = true
 				this.renderer.showMessage({ message: '游戏结束！' })
+				this.history.clearHistory()
 				return
 			}
 
