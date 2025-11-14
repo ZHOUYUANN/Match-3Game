@@ -72,40 +72,49 @@ class GameState {
 	// 根据权重随机生成方块长度
 	getWeightedRandomLength() {
 		// 基础几率配置
-		const chances = {
+		const baseChances = {
 			1: 35, // 1格方块35%几率
 			2: 30, // 2格方块30%几率
 			3: 25, // 3格方块25%几率
 			4: 10 // 4格方块10%几率
 		}
 
-		// 根据游戏进度调整几率（回合数越多，大方块几率越高）
-		const progressFactor = Math.min(1, this.round / this.allRound) // 500回合后达到最大调整
-
-		// 调整后的几率
-		const adjustedChances = {
-			1: Math.max(10, chances[1] - progressFactor * 20), // 1格几率减少
-			2: Math.max(25, chances[2] - progressFactor * 10), // 2格几率减少
-			3: Math.min(35, chances[3] + progressFactor * 10), // 3格几率增加
-			4: Math.min(30, chances[4] + progressFactor * 20) // 4格几率增加
+		// 目标几率配置（回合数达到最大值时的几率）
+		const targetChances = {
+			1: 20, // 1格方块20%几率
+			2: 30, // 2格方块30%几率
+			3: 35, // 3格方块35%几率
+			4: 15 // 4格方块15%几率
 		}
 
-		// 计算总几率
-		const totalChance = Object.values(adjustedChances).reduce((sum, chance) => sum + chance, 0)
+		// 根据游戏进度计算调整因子（0到1之间）
+		const progressFactor = Math.min(1, this.round / this.allRound)
+
+		// 线性插值计算当前几率
+		const currentChances = {}
+		for (let length = 1; length <= 4; length++) {
+			currentChances[length] = baseChances[length] + (targetChances[length] - baseChances[length]) * progressFactor
+		}
+
+		// 计算总几率（确保总和为100）
+		const totalChance = Object.values(currentChances).reduce((sum, chance) => sum + chance, 0)
+		const normalizedChances = {}
+		for (let length = 1; length <= 4; length++) {
+			normalizedChances[length] = (currentChances[length] / totalChance) * 100
+		}
 
 		// 生成随机数
-		const randomValue = Math.random() * totalChance
+		const randomValue = Math.random() * 100
 
 		// 根据几率选择方块长度
 		let cumulative = 0
-
 		for (let length = 1; length <= 4; length++) {
-			cumulative += adjustedChances[length]
+			cumulative += normalizedChances[length]
 			if (randomValue <= cumulative) {
 				return length
 			}
 		}
-		return 1
+		return 1 // 默认返回1
 	}
 
 	getWeightedRandomGroupCount() {
