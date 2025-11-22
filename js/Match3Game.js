@@ -37,31 +37,6 @@ class Match3Game {
 	async start() {
 		// 预加载图片资源
 		try {
-			// await this.state.preloadImages([
-			// 	'img/bg-1.png',
-			// 	'img/bgb-2.png',
-			// 	'img/cao.png',
-			// 	'img/ostrich.png',
-			// 	'img/zebra.png',
-			// 	'img/deer.png',
-			// 	'img/elephant.png',
-			// 	'img/lion.png',
-			// 	'img/bear.png',
-			// 	'img/buffalo.png',
-			// 	'img/score.png',
-			// 	'img/yeniu.png',
-			// 	'img/skill.png',
-			// 	'img/board.png',
-			// 	'img/ostrich_icon.png',
-			// 	'img/zebra_icon.png',
-			// 	'img/deer_icon.png',
-			// 	'img/elephant_icon.png',
-			// 	'img/lion_icon.png',
-			// 	'img/bear_icon.png',
-			// 	'img/buffalo_icon.png',
-			// 	'img/game_over.png',
-			// 	'img/buffalo_warn.png'
-			// ])
 			// 预加载音效
 			await this.soundManager.loadSounds({
 				background: 'sounds/background.mp3',
@@ -82,6 +57,73 @@ class Match3Game {
 			this.controller.setupEventListeners()
 		} catch (error) {
 			console.error('图片预加载失败:', error)
+		}
+	}
+
+	restart() {
+		this.history.clearHistory()
+		this.state.reset()
+		this.renderer.render()
+		this.logic.initializeGame()
+	}
+
+	undo() {
+		if (!this.history.canUndo()) return
+		const prevState = this.history.undo()
+		if (prevState) {
+			this.renderer.render(prevState)
+		}
+	}
+
+	suggestMove(suggestedMove) {
+		if (this.state.isAnimating) return
+		if (suggestedMove.move) {
+			const moveBlock = document.querySelector(
+				`${suggestedMove.move.blockId ? `.block[data-block-id="${suggestedMove.move.blockId}"]` : ''}`
+			)
+
+			// 获取moveBlock的位置和宽度
+			const cellSize = this.state.cellSize
+			const gap = this.state.gap
+
+			const row = Number(moveBlock.dataset.row)
+			const col = Number(moveBlock.dataset.col)
+			const length = Number(moveBlock.dataset.length)
+
+			const left = col * (cellSize + gap)
+			const top = row * (cellSize + gap)
+			const width = length * cellSize + (length - 1) * gap
+
+			// 设置默认位置的block位置
+			this.renderer.defaultBlockMarker.style.width = `${width}px`
+			this.renderer.defaultBlockMarker.style.height = `${cellSize}px`
+			this.renderer.defaultBlockMarker.style.transform = `translate(${left}px, ${top}px)`
+			this.renderer.defaultBlockMarker.style.visibility = 'visible'
+
+			const suggestedBlockMarker = document.createElement('div')
+			if (document.querySelector('.suggested-block-marker')) return
+			const row2 = Number(suggestedMove.move.fromRow)
+			const col2 = Number(suggestedMove.move.toCol)
+			const length2 = Number(suggestedMove.move.length)
+
+			// 设置默认的block位置显示
+			const left2 = col2 * (cellSize + gap)
+			const top2 = row2 * (cellSize + gap)
+			const width2 = length2 * cellSize + (length - 1) * gap
+
+			suggestedBlockMarker.className = 'suggested-block-marker'
+			suggestedBlockMarker.style.width = `${width2}px`
+			suggestedBlockMarker.style.height = `${cellSize}px`
+			suggestedBlockMarker.style.position = 'absolute'
+			suggestedBlockMarker.style.border = '1px solid #fff'
+			suggestedBlockMarker.style.transform = `translate(${left2}px, ${top2}px)`
+			suggestedBlockMarker.style.boxShadow = '1px 1px 9px #ffb371'
+			suggestedBlockMarker.style.animation = 'blink 2s infinite'
+			suggestedBlockMarker.style.pointerEvents = 'none'
+
+			moveBlock.parentNode.insertBefore(suggestedBlockMarker, moveBlock)
+		} else {
+			alert('没有找到可行的移动建议。请考虑使用技能！！')
 		}
 	}
 }

@@ -4,6 +4,7 @@ class GameRenderer {
 		this.soundManager = gameSound
 		this.gameWrapper = gameState.options.el
 
+		this.nextRow = []
 		this.maxBottom = 20
 		this.lions = new Map()
 
