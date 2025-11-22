@@ -15,9 +15,6 @@ class GameController {
 		this.currentBlockGroup = null
 		this.isSelectingSkillTarget = false
 
-		this.restartBtn = document.getElementById('restartBtn')
-		this.hintBtn = document.getElementById('hintBtn')
-
 		this.skillTextElement = document.getElementById('skillText')
 		this.gameMaskElement = document.getElementById('gameMask')
 		this.maskCancelElement = document.getElementById('maskCancel')
@@ -26,9 +23,6 @@ class GameController {
 	setupEventListeners() {
 		this.renderer.gameWrapper.addEventListener('mousedown', this.handleMouseDown.bind(this))
 		this.renderer.gameWrapper.addEventListener('touchstart', this.handleMouseDown.bind(this))
-
-		this.restartBtn.addEventListener('click', this.handleRestart.bind(this))
-		this.hintBtn.addEventListener('click', this.handleHint.bind(this))
 
 		// 添加技能按钮事件
 		this.skillTextElement.addEventListener('click', this.handleSkillTextClick.bind(this))
@@ -186,6 +180,10 @@ class GameController {
 		this.renderer.gameWrapper.classList.add('game-disabled')
 		this.renderer.defaultBlockMarker.style.visibility = 'hidden'
 		this.renderer.dragBlockMarker.style.visibility = 'hidden'
+		// 清除ai信息
+		const suggestedBlockMarker = document.querySelector('.suggested-block-marker')
+		suggestedBlockMarker && suggestedBlockMarker.remove()
+		let isOver = false
 
 		// 执行移动动画
 		await this.blockMove(this.currentBlockGroup.startCol + moveCells, limitedDeltaX)
@@ -203,8 +201,8 @@ class GameController {
 				await this.logic.processGameEffects()
 				// 检查狮子方块
 				await this.logic.checkLionBlock()
-				await this.logic.addNewRow()
-				await this.logic.processGameEffects()
+				isOver = await this.logic.addNewRow()
+				!isOver && (await this.logic.processGameEffects())
 
 				// 检测如果初始化游戏时都消除了，继续添加新行
 				if (this.state.board[this.state.boardSizeH - 1].every((cell) => cell === null)) {
@@ -221,12 +219,13 @@ class GameController {
 		this.state.isAnimating = false
 
 		// 保存历史记录
-		this.history.save({
-			state: {
-				...this.state
-			},
-			nextRow: this.renderer.nextRow
-		})
+		!isOver &&
+			this.history.save({
+				state: {
+					...this.state
+				},
+				nextRow: this.renderer.nextRow
+			})
 		this.draggingBlock = null
 		this.dragStartX = null
 		this.dragStartCol = null
@@ -276,17 +275,6 @@ class GameController {
 			)
 			resolve()
 		})
-	}
-
-	handleRestart() {
-		this.history.clearHistory()
-		this.state.reset()
-		this.renderer.render()
-		this.logic.initializeGame()
-	}
-
-	handleHint() {
-		this.renderer.showMessage({ message: '正在开发中！' })
 	}
 
 	calculateMaxLeftMove(blockGroup) {
