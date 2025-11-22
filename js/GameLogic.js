@@ -25,9 +25,11 @@ class GameLogic {
 
 	// 添加新行并处理后续效果
 	async addNewRow() {
-		await this.moveAllBlocksUp()
+		const isOver = await this.moveAllBlocksUp()
 		this.updateBoardState(this.renderer.nextRow)
 		this.renderer.renderPreview()
+
+		return isOver
 	}
 
 	moveAllBlocksUp() {
@@ -38,10 +40,10 @@ class GameLogic {
 			// 获取所有顶行的方块
 			const blockDoms = document.querySelectorAll('.block[data-row="0"]')
 			if (blockDoms.length) {
-				this.state.gameOver = true
 				this.renderer.showMessage({ message: '游戏结束！' })
 				this.history.clearHistory()
-				resolve()
+				this.state.gameOver = true
+				resolve(true)
 				return
 			}
 
