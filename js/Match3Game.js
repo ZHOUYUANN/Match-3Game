@@ -1,5 +1,6 @@
 class Match3Game {
 	constructor(options = {}) {
+		this._eventListeners = {}
 		this.lastState = null
 		this.history = new GameHistory('luszy_match3_game')
 		const historyData = this.history.getHistory()
@@ -19,7 +20,7 @@ class Match3Game {
 		this.state = new GameState(options)
 		this.soundManager = new SoundManager(this.state)
 		this.renderer = new GameRenderer(this.state, this.soundManager)
-		this.logic = new GameLogic(this.state, this.renderer, this.soundManager, this.history)
+		this.logic = new GameLogic(this, this.state, this.renderer, this.soundManager, this.history)
 		this.skillManager = new GameSkill(this.state, this.renderer, this.logic)
 		this.controller = new GameController(
 			this.state,
@@ -32,6 +33,26 @@ class Match3Game {
 
 		// 设置默认音量
 		this.soundManager.setVolume(0.7)
+	}
+
+	on(type, listener) {
+		if (!this._eventListeners[type]) {
+			this._eventListeners[type] = []
+		}
+		this._eventListeners[type].push(listener)
+	}
+
+	off(type, listenerToRemove) {
+		if (!this._eventListeners[type]) return
+		this._eventListeners[type] = this._eventListeners[type].filter((listener) => listener !== listenerToRemove)
+	}
+
+	trigger(type, data) {
+		if (!this._eventListeners[type]) return
+		// 执行所有注册过的监听器
+		this._eventListeners[type].forEach((listener) => {
+			listener(data) // 直接把数据传过去
+		})
 	}
 
 	async start() {
@@ -75,8 +96,13 @@ class Match3Game {
 		}
 	}
 
-	suggestMove(suggestedMove) {
+	suggestMove(data = null) {
 		if (this.state.isAnimating) return
+		const boardCopy = this.state.board.map((row) => row.map((cell) => (cell ? { ...cell } : null)))
+		const nextRow = this.renderer.nextRow.map((cell) => (cell ? { ...cell } : null))
+		this.ai = new GameAI({ boardSize: [9, 11] })
+		const suggestedMove = data || this.ai.getBestMove(boardCopy, nextRow)
+		console.log(suggestedMove)
 		if (suggestedMove.move) {
 			const moveBlock = document.querySelector(
 				`${suggestedMove.move.blockId ? `.block[data-block-id="${suggestedMove.move.blockId}"]` : ''}`
@@ -101,7 +127,9 @@ class Match3Game {
 			this.renderer.defaultBlockMarker.style.visibility = 'visible'
 
 			const suggestedBlockMarker = document.createElement('div')
-			if (document.querySelector('.suggested-block-marker')) return
+			if (document.querySelector('.suggested-block-marker')) {
+				document.querySelector('.suggested-block-marker').remove()
+			}
 			const row2 = Number(suggestedMove.move.fromRow)
 			const col2 = Number(suggestedMove.move.toCol)
 			const length2 = Number(suggestedMove.move.length)

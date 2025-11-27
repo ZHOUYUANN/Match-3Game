@@ -1,5 +1,6 @@
 class GameLogic {
-	constructor(gameState, gameRenderer, gameSound, gameHistory) {
+	constructor(game, gameState, gameRenderer, gameSound, gameHistory) {
+		this.game = game
 		this.state = gameState
 		this.renderer = gameRenderer
 		this.soundManager = gameSound
@@ -43,6 +44,9 @@ class GameLogic {
 				this.renderer.showMessage({ message: '游戏结束！' })
 				this.history.clearHistory()
 				this.state.gameOver = true
+				this.game.trigger('gameOver', {
+					score: this.state.score
+				})
 				resolve(true)
 				return
 			}
