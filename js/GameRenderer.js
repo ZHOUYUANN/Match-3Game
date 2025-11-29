@@ -197,13 +197,14 @@ class GameRenderer {
 		const dom = document.createElement('div')
 		dom.classList.add(className)
 
-		const width = 20
+		const width = 30
 		const height = 20
 		const x = oldLeft + blockDom.offsetWidth / 2 - width / 2
 		const y = oldTop + blockDom.offsetHeight / 2 - height / 2
 
 		dom.style.width = `${width}px`
 		dom.style.height = `${height}px`
+		dom.style.textAlign = 'center'
 		dom.style.transform = `translate(${x}px, ${y}px)`
 
 		return {
