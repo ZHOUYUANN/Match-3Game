@@ -402,8 +402,8 @@ h1 {
 }
 
 .game-user .user-avatar {
-	width: 33px;
-	height: 33px;
+	width: 35px;
+	height: 35px;
 	margin: 0;
 	padding: 0;
 	border-radius: 50%;
@@ -419,10 +419,7 @@ h1 {
 }
 
 .game-user .user-details {
-	display: flex;
-	flex-direction: column;
 	margin-left: 8px;
-	justify-content: center;
 }
 
 .game-user .user-name {
@@ -430,7 +427,7 @@ h1 {
 	color: #fff0d5;
 	font-weight: bold;
 	line-height: 1.2;
-	max-width: 80px;
+	max-width: 72px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -438,9 +435,8 @@ h1 {
 }
 
 .rank-entry {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	margin-top: 2px;
 	cursor: pointer;
 	background: linear-gradient(to bottom, #ffd700, #ffaa00); /* 金色渐变按钮 */
 	padding: 1px 5px;

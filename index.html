@@ -151,13 +151,13 @@
 							</ul>
 						</div>
 						<div class="rank-self">
-							<span class="num">12</span>
+							<span class="num">0</span>
 							<img class="avatar" src="https://luszy.com/home/usr/themes/life/common/image/noavatar.png" alt="" />
 							<div class="info">
 								<span class="name">我 (You)</span>
-								<span class="desc">还差 200 分超越上一名</span>
+								<span class="desc">还差 0 分超越上一名</span>
 							</div>
-							<span class="score">2,100</span>
+							<span class="score">0</span>
 						</div>
 					</div>
 				</div>
@@ -425,7 +425,7 @@
 						document.querySelector(
 							'.rank-self .info .desc'
 						).innerText = `还差 ${gapToPrevious.toLocaleString()} 分超越上一名`
-						document.querySelector('.rank-self .score').innerText = result.self.score.toLocaleString()
+						document.querySelector('.rank-self .score').innerText = score.toLocaleString()
 					} else {
 						document.querySelector('.rank-self').style.display = 'none'
 					}
